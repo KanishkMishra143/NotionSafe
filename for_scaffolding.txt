@@ -1,0 +1,95 @@
+You are building a Linux-first cross-platform desktop app project called "NotionSafe" (project of name, could change in future). The project stack and behaviour are:
+
+- Language: Python 3.10+
+- GUI: Qt via PySide6 (use PySide6, not PyQt)
+- Notion interaction: use notion-sdk-py / notion-client and notion2md or equivalent exporter libraries
+- Files & attachments: download attachments (images, gifs, pdfs, mp4), store them alongside markdown exports
+- Local backup layout: timestamped snapshots grouped by month (user-configurable frequency: daily/weekly/monthly)
+- Sync targets: local folder (primary), external HDD via rsync, Git repo with two branches:
+  - `backup` branch holds historical timestamped snapshot folders
+  - `main` branch contains only the latest snapshot (replaced/force-pushed each run)
+- Use git-lfs for attachments; track typical binary extensions
+- Scheduling: support cron and systemd user timers
+- Security: store tokens in OS keyring (use Python `keyring`) or encrypted credentials file (AES)
+- Packaging: prepare for AppImage on Linux and PyInstaller for Windows later (just scaffolding now)
+- Developer tooling: tests (pytest), basic linting (black, flake8), packaging skeleton (pyproject.toml)
+
+Your job: create a ready-to-run project scaffold and an installer script that:
+1. Detects the Linux distribution (Debian/Ubuntu or Fedora/RHEL). Use apt/dnf accordingly.
+2. Installs required **system packages** (git, git-lfs, rsync, python3, python3-venv, python3-dev, build tools, libssl-dev, libffi-dev, Qt runtime dependencies).
+3. Creates a Python virtualenv, upgrades pip, and installs all Python dependencies (listed below) into it.
+4. Initializes git LFS and configures LFS tracking for attachments.
+5. Creates these files in the project root with sensible contents:
+   - `setup.sh` — the installer that performs distro detection, installs system packages (using apt or dnf), creates venv, installs pip deps, and initializes git-lfs.
+   - `requirements.txt` — pinned or minimally versioned deps.
+   - `pyproject.toml` — basic package metadata and build-system (poetry or setuptools) stub.
+   - `notebackup/` Python package skeleton with modules: `auth.py`, `notion_api.py`, `exporter.py`, `fs_layout.py`, `storage.py`, `gitops.py`, `scheduler.py`, `cli.py`.
+   - `scripts/` with `backup_runner.py` (CLI entry for a single-run backup), `git_commit_update.sh`, `rsync_copy.sh`, `install_systemd_timer.sh`.
+   - `examples/` with a minimal example `backup_config.yaml` showing the folder schema and frequency options.
+   - `README.md` describing the project, quick-start, and commands created by setup.
+   - `.gitignore` and `.gitattributes` configured for git-lfs.
+6. Provide a safe default list of file extensions to be tracked by git-lfs: `png jpg jpeg gif mp4 pdf mov zip tar gz`.
+7. Add helper commands in `setup.sh` to optionally create a user systemd timer and to add a cron entry (commented/instructional if systemd is unavailable).
+8. Add commands to initialize an empty git repo, run `git lfs install`, set `git remote` placeholder, and create `backup` and `main` branches.
+9. Include a clear `requirements.txt` containing (at minimum) these Python packages:
+   - notion-client (or notion-sdk-py)
+   - notion2md (or an exporter lib)
+   - requests
+   - PySide6
+   - GitPython
+   - python-dotenv
+   - keyring
+   - pyyaml
+   - sqlalchemy (optional, for metadata)
+   - rclone (python wrapper optional) OR instructions to install rclone binary
+   - pytest, black, flake8 (dev)
+   - python-dateutil
+   - tqdm
+   - psutil
+10. Add a `bootstrap.sh` mode in `setup.sh` that runs the Python `backup_runner.py` once using a sample config (and demonstrates creating a snapshot in `~/NotebackVaults`).
+11. For Qt, include a `gui_stub.py` that launches a minimal PySide6 window and points to the CLI core API for now.
+12. Make `backup_runner.py` implement the following runnable flow using the installed libs:
+    - read `examples/backup_config.yaml` or `~/.noteback/config.yaml`
+    - authenticate to Notion via token environment variable or token from keyring
+    - export one example page id listed in config to a timestamped folder (using notion2md exporter or SDK)
+    - download attachments to `attachments/`
+    - create `metadata.json`
+    - create `latest` symlink
+    - call `rsync_copy.sh` to copy snapshot to external HDD path specified in config (if exists)
+    - call `git_commit_update.sh` to commit to `backup` branch and update `main` (force)
+13. Implement `git_commit_update.sh` to:
+    - checkout or create `backup` branch
+    - add and commit the snapshot folder
+    - push to remote `backup` branch
+    - checkout or create `main` branch
+    - clear tracked files from `main` branch and replace with latest snapshot contents
+    - commit and force-push `main`
+    - handle git-lfs tracked file pushes
+14. Add thorough inline comments in all scripts so a developer can follow what each part does.
+15. Print a final checklist at the end of `setup.sh` showing next steps: share pages with integration, set NOTION_TOKEN env var or run OAuth, test run, configure remote git URL, enable systemd timer.
+
+Extra requirements:
+- Use secure defaults: store tokens in keyring and never print tokens to console.
+- Make the installer idempotent: re-running `setup.sh` should not break an existing install.
+- Make no network calls during scaffolding except package installs; when running `bootstrap` the sample run may call Notion API (document that a valid token is required).
+- Create scripts with strict `set -euo pipefail` and POSIX-compatible bash where possible.
+
+Deliverables:
+- `setup.sh`
+- `requirements.txt`
+- `pyproject.toml`
+- `notebackup/` package with the module files
+- `scripts/{backup_runner.py, git_commit_update.sh, rsync_copy.sh, install_systemd_timer.sh}`
+- `examples/backup_config.yaml`
+- `README.md`
+- `.gitignore`, `.gitattributes`
+
+Produce:
+1. All file contents (full) for the above deliverables in a zipped layout (or print to console so I can copy files).
+2. A final short shell command I can run to execute the installer once files are created (e.g., `bash setup.sh --install`).
+3. Any notes about privileged operations or additional manual steps required (e.g., running `git lfs install`, setting up systemd user permissions).
+
+Important: be explicit and exact with shell commands and file contents. Use absolute paths only in examples (e.g., `~/NotebackVaults`) and make them configurable in `examples/backup_config.yaml`. Keep everything reproducible. End response by listing the single command I should run after files are written to start the installer.
+
+Do not produce the full app here; create the scaffold and installer scripts and code stubs with enough detail to actually run the first test export and demonstrate git + rsync integration. Output the full scaffolding now.
+

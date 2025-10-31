@@ -1,0 +1,32 @@
+# NotionSafe Backup Configuration
+# Default location: ~/.noteback/config.yaml
+
+# Notion API settings
+notion:
+  # Add the page and database IDs you want to back up.
+  page_ids:
+    - "your_page_id_1"
+    - "your_page_id_2"
+  database_ids:
+    - "your_database_id_1"
+
+# Backup storage settings
+storage:
+  # Primary local backup directory.
+  local_path: "~/NotebackVaults"
+  # Backup frequency: daily, weekly, or monthly.
+  frequency: "daily"
+
+  # External drive sync (rsync)
+  external_drive:
+    enabled: true
+    # Path to your external drive.
+    path: "/media/user/ExternalHDD/NotionBackups"
+
+  # Git repository sync
+  git:
+    enabled: true
+    # The remote URL of your Git repository.
+    remote_url: "git@github.com:your-username/notion-backups.git"
+    # The name of the remote.
+    remote_name: "origin"
