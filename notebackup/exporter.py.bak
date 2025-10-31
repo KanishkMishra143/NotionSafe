@@ -1,0 +1,52 @@
+# Adaptive importer: search notion2md.exporter package and submodules for a usable export callable
+from __future__ import annotations
+import importlib
+import pkgutil
+from typing import Callable, Any
+
+CANDIDATE_NAMES = [
+    "export_cli", "export", "main", "run", "cli", "exporter"
+]
+
+def _iter_submodules(pkg_name: str):
+    """Yield fully-qualified submodule names under pkg_name (non-recursive top-level plus recursive)."""
+    try:
+        pkg = importlib.import_module(pkg_name)
+    except Exception:
+        return
+    # yield the package itself first
+    yield pkg_name, pkg
+    # walk submodules recursively
+    for finder, name, ispkg in pkgutil.walk_packages(path=getattr(pkg, "__path__", None), prefix=pkg_name + "."):
+        try:
+            mod = importlib.import_module(name)
+            yield name, mod
+        except Exception:
+            # skip submodules that fail to import
+            continue
+
+def _find_export_callable() -> Callable[..., Any]:
+    # search package and its submodules for a candidate name that is callable
+    for mod_name, mod in _iter_submodules("notion2md.exporter"):
+        for cand in CANDIDATE_NAMES:
+            if hasattr(mod, cand):
+                obj = getattr(mod, cand)
+                if callable(obj):
+                    return obj
+    # also search top-level package as a last resort
+    try:
+        top = importlib.import_module("notion2md")
+        for cand in CANDIDATE_NAMES:
+            if hasattr(top, cand):
+                obj = getattr(top, cand)
+                if callable(obj):
+                    return obj
+    except Exception:
+        pass
+    raise ImportError(
+        "Could not find a callable export function in notion2md.exporter or its submodules. "
+        "Searched names: " + ", ".join(CANDIDATE_NAMES)
+    )
+
+export_cli = _find_export_callable()
+# (rest of original exporter.py behavior can follow below if necessary)
