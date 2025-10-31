@@ -3,7 +3,7 @@
 
 ## Project Overview
 
-This project, **NotionSafe**, is a Python-based application for creating secure, local backups of a Notion workspace. It is designed as a Linux-first, cross-platform desktop application with both a command-line interface (CLI) and a planned graphical user interface (GUI).
+This project, **NotionSafe**, is a Python-based application for creating secure, local backups of a Notion workspace. It is designed as a Linux-first, cross-platform desktop application with both a command-line interface (CLI) and a planned graphical user interface (GUI). The project's repository is available at https://github.com/KanishkMishra143/NotionSafe.
 
 The core functionality involves fetching Notion pages and databases, exporting them to Markdown, and storing them in timestamped snapshot directories. It supports multiple backup targets, including a local folder, an external drive via `rsync`, and a remote Git repository using a specialized branching strategy.
 
@@ -16,6 +16,7 @@ The core functionality involves fetching Notion pages and databases, exporting t
 
 **Architecture:**
 - The main application logic is encapsulated in the `notebackup` Python package.
+- The `assets` directory contains static assets like the application logo.
 - The entry point for the backup process is `scripts/backup_runner.py`, which uses the `notebackup.cli` module.
 - Configuration is managed via a YAML file located at `~/.noteback/config.yaml`.
 - Automation is handled by shell scripts for git operations (`git_commit_update.sh`), `rsync` (`rsync_copy.sh`), and scheduling (`install_systemd_timer.sh`).
