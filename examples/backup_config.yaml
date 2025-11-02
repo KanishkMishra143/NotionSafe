@@ -15,13 +15,13 @@ storage:
   # Primary local backup directory.
   local_path: "~/NotebackVaults"
   # Backup frequency: daily, weekly, or monthly.
-  frequency: "daily"
+  frequency: "weekly"
 
   # External drive sync (rsync)
   external_drive:
     enabled: true
     # Path to your external drive.
-    path: "/media/user/ExternalHDD/NotionBackups"
+    path: "~/HDD/NotionBackups"
 
   # Git repository sync
   git:

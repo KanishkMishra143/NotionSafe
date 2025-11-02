@@ -18,5 +18,12 @@ classifiers = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/your-username/notionsafe"
-"Bug Tracker" = "https://github.com/your-username/notionsafe/issues"
+"Homepage" = "https://github.com/KanishkMishra143/NotionSafe"
+"Bug Tracker" = "https://github.com/KanishkMishra143/NotionSafe/issues"
+
+[tool.flake8]
+exclude = [
+    "venv",
+    "examples",
+    "notebackup/__pycache__",
+]
