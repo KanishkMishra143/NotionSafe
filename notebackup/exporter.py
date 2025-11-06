@@ -100,6 +100,7 @@ def _export_cli_passthrough(*args, **kwargs):
             argv.extend(map(str, a))
         else:
             argv.append(str(a))
+    argv.append("--download") # Add the --download flag here
     return _subprocess_runner(argv)
 
 # Export the symbol expected by notebackup code.

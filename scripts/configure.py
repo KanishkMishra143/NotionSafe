@@ -137,9 +137,25 @@ def main():
                 console.print(f"[green]Created external backup directory: {full_external_path}[/green]")
             except OSError as e:
                 console.print(f"[bold red]Error creating external backup directory {full_external_path}: {e}[/bold red]") 
+
+    # Prompt for backup frequency
+    console.print("\n[bold]Finally, let's set the backup frequency.[/bold]")
+    backup_frequency = questionary.select(
+        "How often should backups run?",
+        choices=["Daily", "Weekly", "Monthly"],
+        default="Daily"
+    ).ask()
         
     # Generate config.yaml
-    console.print("\\n[bold]Generating config.yaml file...[/bold]")
+    console.print("\n[bold]Generating config.yaml file...[/bold]")
+
+    # Map frequency choices to hours
+    frequency_map = {
+        "Daily": 24,
+        "Weekly": 24 * 7,
+        "Monthly": 24 * 30  # Approximation
+    }
+    backup_frequency_hours = frequency_map.get(backup_frequency, 24)
 
     config_data = {
         "notion": {
@@ -147,15 +163,17 @@ def main():
             "database_ids": selected_database_ids,
         },
         "storage": {
-            "local": {"enabled": enable_local, "path": os.path.expanduser(local_path) if enable_local else ""}
-        },
-        "external_drive": {
-            "enabled": enable_external,
-            "path": os.path.expanduser(external_path) if enable_external else "",
-        },
-        "git_remote": {
-            "enabled": enable_git,
-            "remote_url": remote_url if enable_git else ""
+            "local_path": os.path.expanduser(local_path) if enable_local else "",
+            "backup_frequency_hours": backup_frequency_hours,
+            "external_drive": {
+                "enabled": enable_external,
+                "path": os.path.expanduser(external_path) if enable_external else "",
+            },
+            "git": {
+                "enabled": enable_git,
+                "remote_url": remote_url if enable_git else "",
+                "remote_name": "origin"  # A sensible default
+            },
         },
     }
 

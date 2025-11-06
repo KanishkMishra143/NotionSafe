@@ -1,23 +1,24 @@
 import argparse
 import os
 import yaml
+import notion_client
 from . import auth, exporter, fs_layout, storage, scheduler
+from post_process import post_process_file
+
+def get_page_title(notion, page_id):
+    try:
+        page = notion.pages.retrieve(page_id)
+        # The title is a rich text object, so we need to extract the plain text
+        return page['properties']['title']['title'][0]['plain_text']
+    except Exception as e:
+        print(f"    ERROR: Failed to get title for page {page_id}: {e}")
+        return page_id
 
 def main():
     parser = argparse.ArgumentParser(description="NotionSafe: Backup your Notion workspace.")
     parser.add_argument('--config', default='~/.noteback/config.yaml', help='Path to the configuration file.')
-    parser.add_argument('--install-timer', action='store_true', help='Install and enable a systemd user timer.')
-    parser.add_argument('--cron-job', action='store_true', help='Show instructions for setting up a cron job.')
 
     args = parser.parse_args()
-
-    if args.install_timer:
-        scheduler.install_systemd_timer()
-        return
-    
-    if args.cron_job:
-        scheduler.add_cron_job()
-        return
 
     config_path = os.path.expanduser(args.config)
     if not os.path.exists(config_path):
@@ -38,6 +39,8 @@ def main():
         print("Failed to get Notion token. Exiting.")
         return
 
+    notion = notion_client.Client(auth=token)
+
     local_backup_path = os.path.expanduser(config['storage']['local_path'])
     snapshot_path = fs_layout.create_snapshot_dir(local_backup_path)
     print(f"Created snapshot directory: {snapshot_path}")
@@ -45,12 +48,28 @@ def main():
     page_ids = config['notion'].get('page_ids', [])
     db_ids = config['notion'].get('database_ids', [])
 
-    if page_ids:
-        exporter.export_pages(page_ids, snapshot_path)
-    if db_ids:
-        exporter.export_databases(db_ids, snapshot_path)
+    # The exporter expects a list of arguments for the notion2md CLI
+    base_args = ['--token', token, '--path', snapshot_path, '--unzipped']
 
-    fs_layout.update_latest_symlink(local_backup_path, snapshot_path)
+    for page_id in page_ids:
+        page_title = get_page_title(notion, page_id)
+        print(f"Exporting page: {page_title}")
+        try:
+            exporter.export_cli(base_args + ['--id', page_id, '--name', page_title])
+            post_process_file(os.path.join(snapshot_path, f"{page_title}.md"))
+        except Exception as e:
+            print(f"    ERROR: Failed to export page {page_id}: {e}")
+
+    for db_id in db_ids:
+        # For databases, we'll use the database ID as the name for now
+        print(f"Exporting database: {db_id}")
+        try:
+            exporter.export_cli(base_args + ['--id', db_id, '--name', db_id])
+            post_process_file(os.path.join(snapshot_path, f"{db_id}.md"))
+        except Exception as e:
+            print(f"    ERROR: Failed to export database {db_id}: {e}")
+
+    fs_layout.update_latest_marker(local_backup_path, snapshot_path)
 
     if config['storage']['external_drive']['enabled']:
         ext_path = os.path.expanduser(config['storage']['external_drive']['path'])

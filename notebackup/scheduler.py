@@ -1,34 +1,25 @@
-import subprocess
-import os
+import time
+import schedule
+import sys
 
-def install_systemd_timer():
+def run_continuously(job_func, interval_hours=24):
     """
-    Installs and enables a systemd user timer for the backup script.
-    """
-    script_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'scripts', 'install_systemd_timer.sh'))
-    if not os.path.exists(script_path):
-        print(f"Error: Systemd install script not found at {script_path}")
-        return
+    Runs a job at a specified interval using in-process scheduling.
 
-    print("Running systemd timer installation script...")
+    This function will run in an infinite loop.
+
+    :param job_func: The function to execute at each interval.
+    :param interval_hours: The interval in hours between job executions.
+    """
+    print(f"Scheduling job to run every {interval_hours} hours.")
+    schedule.every(interval_hours).hours.do(job_func)
+
+    print("Scheduler started. Press Ctrl+C to stop.")
     try:
-        subprocess.run(["bash", script_path], check=True)
-        print("Systemd timer installed and started successfully.")
-        print("You can check the status with: systemctl --user status notionsafe.timer")
-    except subprocess.CalledProcessError as e:
-        print(f"Error installing systemd timer: {e}")
-    except FileNotFoundError:
-        print("Error: 'bash' command not found. Please ensure you are on a Linux system.")
-
-def add_cron_job():
-    """
-    Provides instructions for adding a cron job.
-    """
-    runner_script_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'scripts', 'backup_runner.py'))
-    python_executable = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'venv', 'bin', 'python'))
-    
-    print("\n--- Cron Job Instructions ---")
-    print("To run the backup daily at 2 AM, add the following line to your crontab.")
-    print("Run 'crontab -e' and add:")
-    print(f"0 2 * * * {python_executable} {runner_script_path}")
-    print("---------------------------\n")
+        while True:
+            schedule.run_pending()
+            # Sleep for a short duration to avoid busy-waiting
+            time.sleep(60)  # Check every minute
+    except KeyboardInterrupt:
+        print("\nScheduler stopped by user.")
+        sys.exit(0)

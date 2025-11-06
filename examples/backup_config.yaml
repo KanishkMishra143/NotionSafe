@@ -5,27 +5,28 @@
 notion:
   # Add the page and database IDs you want to back up.
   page_ids:
-    - "your_page_id_1"
-    - "your_page_id_2"
+    - "1b80a912-02c3-8002-901c-e4285698b0cc"
+    - "1730a912-02c3-8096-a2a6-c7ba047a603c"
+    - "f2c9b9a2-4a9b-4335-8c8c-1baf28a40e37"
   database_ids:
-    - "your_database_id_1"
+    - "2850a912-02c3-80eb-960e-fb49445e6d8f"
 
 # Backup storage settings
 storage:
   # Primary local backup directory.
-  local_path: "~/NotebackVaults"
-  # Backup frequency: daily, weekly, or monthly.
-  frequency: "weekly"
+  local_path: "./notion2md-output"
+  # Backup frequency in hours (e.g., 24 for daily, 168 for weekly).
+  backup_frequency_hours: 24
 
   # External drive sync (rsync)
   external_drive:
-    enabled: true
+    enabled: false
     # Path to your external drive.
     path: "~/HDD/NotionBackups"
 
   # Git repository sync
   git:
-    enabled: true
+    enabled: false
     # The remote URL of your Git repository.
     remote_url: "git@github.com:your-username/notion-backups.git"
     # The name of the remote.
