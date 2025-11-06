@@ -2,7 +2,7 @@ import argparse
 import os
 import yaml
 import notion_client
-from . import auth, exporter, fs_layout, storage, scheduler
+from . import auth, exporter, fs_layout, storage, scheduler, gitops
 from post_process import post_process_file
 
 def get_page_title(notion, page_id):
@@ -77,7 +77,13 @@ def main():
 
     if config['storage']['git']['enabled']:
         git_config = config['storage']['git']
-        storage.git_commit(local_backup_path, os.path.basename(snapshot_path), git_config['remote_name'], git_config['remote_url'])
+        # The repo path is the local backup path where the .git folder resides
+        gitops.perform_git_backup(
+            repo_path=local_backup_path, 
+            snapshot_folder=snapshot_path, # Pass the full path to the snapshot
+            remote_name=git_config['remote_name'], 
+            remote_url=git_config['remote_url']
+        )
 
     print("\nBackup process completed successfully!")
 

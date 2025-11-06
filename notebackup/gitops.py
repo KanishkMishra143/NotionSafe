@@ -4,21 +4,11 @@ import os
 def init_repo(repo_path):
     """Initializes a new Git repository if one doesn't exist."""
     if not os.path.exists(os.path.join(repo_path, ".git")):
+        print(f"No Git repository found at {repo_path}, initializing a new one.")
         repo = git.Repo.init(repo_path)
         print(f"Initialized empty Git repository in {repo_path}")
         return repo
     return git.Repo(repo_path)
-
-def lfs_track(repo, extensions):
-    """Sets up Git LFS tracking for the given file extensions."""
-    with repo.git.custom_environment(GIT_LFS_SKIP_SMUDGE="1"):
-        repo.git.lfs("install")
-        for ext in extensions:
-            repo.git.lfs("track", f"**/*.{ext}")
-    if ".gitattributes" not in repo.untracked_files:
-        repo.index.add([".gitattributes"])
-        repo.index.commit("Configure Git LFS tracking")
-        print("Committed .gitattributes for LFS.")
 
 def has_remote(repo, remote_name):
     """Checks if a remote with the given name exists."""
@@ -28,29 +18,33 @@ def check_for_changes(repo):
     """Check if there are any uncommitted changes."""
     return repo.is_dirty(untracked_files=True)
 
-def commit_and_push(repo_path, commit_message, remote_name, remote_url):
+def perform_git_backup(repo_path, snapshot_folder, remote_name, remote_url):
     """
-    Commits and pushes changes to the git repository.
+    Orchestrates the entire git backup process.
+    Initializes repo, adds all changes, commits, and pushes to the remote.
     """
     try:
         repo = init_repo(repo_path)
 
-        # Check for changes
+        # Check for changes before proceeding
         if not check_for_changes(repo):
-            print("No changes to commit.")
+            print("No changes detected in the backup. Git backup skipped.")
             return
 
+        print("Changes detected, proceeding with Git backup.")
         repo.git.add(A=True)
+        
+        commit_message = f"NotionSafe backup: {os.path.basename(snapshot_folder)}"
         repo.index.commit(commit_message)
-        print("Git commit successful.")
+        print(f"Successfully committed changes with message: '{commit_message}'")
 
-        # Handle remote
+        # Handle remote repository
         if not has_remote(repo, remote_name):
+            print(f"Remote '{remote_name}' not found. Creating it with URL: {remote_url}")
             repo.create_remote(remote_name, remote_url)
-            print(f"Added new remote: {remote_name} with URL {remote_url}")
-
-        # Push to remote
-        repo.remotes[remote_name].push()
+        
+        print(f"Pushing changes to remote '{remote_name}'...")
+        repo.remotes[remote_name].push(refspec='HEAD')
         print("Git push to remote successful.")
 
     except git.exc.GitCommandError as e:
