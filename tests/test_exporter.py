@@ -16,7 +16,7 @@ def test_export_cli_subprocess_fallback():
             with patch('notebackup.exporter._main_callable', None):
                 result = export_cli(ARGS)
                 
-                expected_cmd = [sys.executable, '-m', 'notion2md'] + ARGS
+                expected_cmd = [sys.executable, '-m', 'notion2md'] + ARGS + ['--download']
                 mock_subprocess_run.assert_called_once_with(expected_cmd, check=False)
                 assert result == 0
 

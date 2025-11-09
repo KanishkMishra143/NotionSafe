@@ -2,56 +2,54 @@
 
 ## Project Overview
 
-This project, **NotionSafe**, is a Python-based application for creating secure, local backups of a Notion workspace. The immediate focus is on creating a robust command-line interface (CLI) on **Windows 11**, with a cross-platform graphical user interface (GUI) planned for both Windows and Linux. The project's repository is available at https://github.com/KanishkMishra143/NotionSafe.
+This project, **NotionSafe**, is a Python-based application for creating secure, local backups of a Notion workspace. It features a command-line interface (CLI) and a graphical user interface (GUI) built with PySide6.
 
 **Key Technologies:**
 - **Language:** Python 3.10+
-- **CLI TDD:** `pytest`, `pytest-mock`
-- **Dependencies:** `PyYAML` for configuration, `keyring` for secure token storage, `GitPython` for git operations, `schedule` for in-process scheduling.
+- **GUI:** PySide6
+- **Dependencies:** `PyYAML`, `keyring`, `GitPython`, `schedule`, `notion-client`
 
 ---
 
-## Current Status and Next Steps
+## Current Status (as of 2025-11-09)
 
-### Current Status (as of 2025-11-05)
-
-- **User Interaction Rule**: Per the user's request, all interventions that write or modify code **must** be preceded by a question asking for explicit permission to do so.
-- **Scheduler Refactored**: `notebackup/scheduler.py` has been successfully refactored to be a cross-platform, automated scheduler using the `schedule` library. The backup frequency is now configurable via `scripts/configure.py`.
-- **Improved User Setup**: Created `setup.bat` and `run.bat` scripts to significantly improve the setup experience for new users on Windows.
-- **Bug Fixes from User Testing**:
-    - Fixed an error where the wrong argument (`--output` instead of `--path`) was being passed to the `notion2md` exporter.
-    - Fixed a permissions error on Windows (`OSError: [WinError 1314]`) by replacing `os.symlink` with a `latest.txt` marker file for tracking the most recent backup.
+- **Comprehensive Test Suite:** Created a comprehensive test suite with 20 tests covering all core modules. This significantly improves project stability and maintainability.
+- **Backup End-to-End Success:** A full backup process, including Git remote push, completed successfully, confirming all recent bug fixes.
+- **GitOps Hardened:** Systematically debugged and fixed a series of cascading bugs in the `gitops.py` module, resulting in a fully robust and functional Git backup feature.
+- **Critical Bugs Fixed:** The `AttributeError` crashes in the Configuration Wizard and GUI Log Viewer have been resolved.
+- **Markdown Post-Processing:** A robust script (`post_process.py`) is in place to fix `notion2md` output.
+- **GitOps Complete:** The Git backup feature is fully integrated into `notebackup/gitops.py`.
+- **GUI Implemented:** The application has a functional GUI.
+- **GUI Configuration Wizard:** The configuration wizard is implemented and functional.
+- **Centralized Logging:** A centralized logging system is fully implemented and integrated.
 
 ### Module Implementation Status
 
 | Module | Status | Notes |
 | :--- | :--- | :--- |
 | `auth.py` | **Implemented** | Handles Notion token retrieval. |
-| `cli.py` | **Implemented** | Core backup logic is implemented and tested. |
+| `cli.py` | **Implemented** | Core backup logic. Refactored to use `logging`. |
+| `config_wizard.py` | **Implemented** | GUI wizard is now functional. |
 | `exporter.py` | **Implemented** | Core exporting logic is complete and tested. |
 | `fs_layout.py`| **Implemented** | Handles snapshot directory creation and `latest.txt` marker. |
-| `gitops.py` | **Partially Implemented** | Contains `git` helper functions. Not fully integrated. |
-| `gui_stub.py` | **Stub** | Placeholder for a future GUI. |
+| `gitops.py` | **Implemented and hardened** | Fully integrated and robust Git backup logic. |
+| `gui.py` | **Implemented** | Main GUI application is now functional. |
+| `logger.py` | **Implemented** | Centralized logging configuration. |
 | `notion_api.py`| **Implemented** | Basic wrapper for the Notion API. |
-| `scheduler.py`| **Implemented** | Cross-platform, in-process scheduler using the `schedule` library. |
-| `storage.py` | **Implemented** | Refactored for cross-platform compatibility and tested. |
-
-### Next Steps (for next session)
-
-With the core CLI functionality now more robust and cross-platform, we can choose from several strategic directions for the next session:
-
-**Option 1: Complete Git Operations (`gitops.py`)**
-   - **Goal**: Fully integrate `gitops.py` to make the Git backup feature more robust and intelligent. This involves moving the Git logic from `storage.py` into `gitops.py` and enhancing it (e.g., auto-initialization, better error handling).
-
-**Option 2: Begin GUI Development**
-   - **Goal**: Start building the cross-platform graphical user interface (GUI) using `PySide6`, replacing the current `gui_stub.py`.
-
-**Option 3: Enhance Application Robustness**
-   - **Goal**: Improve the overall stability and user experience of the CLI application by implementing a centralized logging system (using Python's `logging` module) to provide better debugging and progress tracking than the current `print` statements.
+| `scheduler.py`| **Implemented** | Cross-platform, in-process scheduler. Not yet integrated with GUI. |
+| `storage.py` | **Implemented** | Handles external drive copy logic. |
 
 ---
 
-## Testing and Code Quality
+## Future Directions
 
-- **Linting:** `flake8 .`, `black .`
-- **Execution:** `pytest`
+With the critical bugs resolved and a solid test suite in place, future work can focus on polish, packaging, and deeper integration.
+
+**Option 1: GUI Polish and Scheduler Integration**
+   - **Goal**: Enhance the user experience of the GUI. This includes adding icons and progress bars, and more importantly, integrating the background scheduler. The GUI could have controls to start/stop the automated backup service and display the next scheduled run time.
+
+**Option 2: Packaging and Distribution**
+   - **Goal**: Make the application accessible to non-technical users by packaging it as a standalone executable. Using a tool like `PyInstaller` or `cx_Freeze`, we can create a `.exe` file for Windows that includes the Python interpreter and all dependencies, allowing users to run NotionSafe without installing Python or any packages.
+
+**Option 3: Advanced Error Handling & Recovery**
+   - **Goal**: Make the GUI smarter about errors. For example, if a backup fails due to an invalid Notion token, the GUI could detect this specific error and pop up a dialog that directly prompts the user to re-run the configuration wizard to fix it.

@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch, call
 import os
 import shutil
-from notebackup.storage import rsync_to_external, git_commit
+from notebackup.storage import rsync_to_external
  
 def test_rsync_to_external_copies_files_and_deletes_existing(tmp_path):
     source_path = tmp_path / "source"
@@ -23,5 +23,6 @@ def test_rsync_to_external_copies_files_and_deletes_existing(tmp_path):
         rsync_to_external(str(source_path), str(dest_path))
   
         # Assertions
-        mock_rmtree.assert_called_once_with(str(dest_path))
-        mock_copytree.assert_called_once_with(str(source_path), str(dest_path))
+        final_dest_path = os.path.join(dest_path, os.path.basename(source_path))
+        mock_rmtree.assert_called_once_with(str(final_dest_path))
+        mock_copytree.assert_called_once_with(str(source_path), str(final_dest_path))

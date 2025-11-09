@@ -1,85 +1,235 @@
 import sys
-import io
-from PySide6.QtCore import Signal, QObject, Qt
-from PySide6.QtWidgets import QApplication, QMainWindow, QLabel, QPushButton, QTextEdit, QVBoxLayout, QWidget
-from notebackup import cli as backup_cli # Import the CLI main function
+import logging
+import os
+import time
+import schedule
+import yaml
+from PySide6.QtCore import Signal, QObject, Qt, QThread
+from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton, QTextEdit, QVBoxLayout, QWidget, QProgressBar, QLabel, QFrame, QHBoxLayout, QMessageBox, QWizard
+from PySide6.QtGui import QAction, QColor, QTextCursor, QIcon
 
-# Custom stream to redirect stdout to a Qt signal
-class QtOutputStream(QObject, io.TextIOBase):
-    new_text = Signal(str)
+from notebackup import cli as backup_cli
+from notebackup.config_wizard import ConfigWizard
+from notebackup.logger import log
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+# 1. Custom logging handler that emits a Qt signal
+class QTextEditLogHandler(logging.Handler, QObject):
+    new_record = Signal(str)
 
-    def write(self, text):
-        self.new_text.emit(text)
-        return len(text)
+    def __init__(self, parent):
+        super().__init__()
+        QObject.__init__(self)
+        self.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S'))
 
-    def flush(self):
-        pass
+    def emit(self, record):
+        msg = self.format(record)
+        self.new_record.emit(msg)
+
+class Worker(QThread):
+    progress = Signal(int)
+    finished = Signal()
+    error = Signal(str)
+
+    def __init__(self, config_path):
+        super().__init__()
+        self.config_path = config_path
+
+    def run(self):
+        try:
+            backup_cli.main(config_path=self.config_path, progress_callback=self.progress)
+            self.finished.emit()
+        except Exception as e:
+            self.error.emit(str(e))
+
+class SchedulerThread(QThread):
+    next_run_time = Signal(str)
+
+    def __init__(self, job_func, interval_hours):
+        super().__init__()
+        self.job_func = job_func
+        self.interval_hours = interval_hours
+        self._is_running = True
+
+    def run(self):
+        schedule.every(self.interval_hours).hours.do(self.job_func)
+        while self._is_running:
+            schedule.run_pending()
+            next_run = schedule.next_run
+            if next_run:
+                self.next_run_time.emit(str(next_run))
+            time.sleep(1)
+
+    def stop(self):
+        self._is_running = False
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-
         self.setWindowTitle("NotionSafe")
+        self.setWindowIcon(QIcon('assets/logo.png'))
         self.setGeometry(100, 100, 800, 600)
+
+        # --- Menu Bar ---
+        menu_bar = self.menuBar()
+        file_menu = menu_bar.addMenu("&File")
+        edit_menu = menu_bar.addMenu("&Edit")
+        help_menu = menu_bar.addMenu("&Help")
+
+        exit_action = QAction("&Exit", self)
+        exit_action.triggered.connect(self.close)
+        file_menu.addAction(exit_action)
+
+        edit_config_action = QAction("Edit &Configuration", self)
+        edit_config_action.triggered.connect(self.show_config_wizard)
+        edit_menu.addAction(edit_config_action)
+
+        help_action = QAction("&Help", self)
+        help_action.triggered.connect(self.show_help)
+        help_menu.addAction(help_action)
+
+        about_action = QAction("&About", self)
+        about_action.triggered.connect(self.show_about)
+        help_menu.addAction(about_action)
+
+        # --- Status Bar ---
+        self.statusBar().showMessage('Ready')
 
         # --- Widgets ---
         self.log_output = QTextEdit()
         self.log_output.setReadOnly(True)
         self.log_output.setFontFamily("Courier")
+        self.progress_bar = QProgressBar()
+        self.run_button = QPushButton("Run Manual Backup")
 
-        self.run_button = QPushButton("Run Backup")
+        # --- Scheduler Controls ---
+        scheduler_frame = QFrame()
+        scheduler_frame.setFrameShape(QFrame.StyledPanel)
+        scheduler_layout = QHBoxLayout(scheduler_frame)
+        self.start_scheduler_button = QPushButton("Start Scheduler")
+        self.stop_scheduler_button = QPushButton("Stop Scheduler")
+        self.next_run_label = QLabel("Next run: Not scheduled")
+        scheduler_layout.addWidget(self.start_scheduler_button)
+        scheduler_layout.addWidget(self.stop_scheduler_button)
+        scheduler_layout.addWidget(self.next_run_label)
+        self.stop_scheduler_button.setEnabled(False)
 
         # --- Layout ---
         layout = QVBoxLayout()
-        layout.addWidget(self.log_output, 4) # Give more stretch to the log
+        layout.addWidget(self.log_output, 4)
+        layout.addWidget(self.progress_bar)
+        layout.addWidget(scheduler_frame)
         layout.addWidget(self.run_button, 1)
-
         central_widget = QWidget()
         central_widget.setLayout(layout)
         self.setCentralWidget(central_widget)
 
         # --- Connections ---
         self.run_button.clicked.connect(self.run_backup)
+        self.start_scheduler_button.clicked.connect(self.start_scheduler)
+        self.stop_scheduler_button.clicked.connect(self.stop_scheduler)
 
-        # --- Redirect stdout ---
-        self.output_stream = QtOutputStream()
-        self.output_stream.new_text.connect(self.append_text)
-        sys.stdout = self.output_stream
+        # --- Logging ---
+        self.log_handler = QTextEditLogHandler(self)
+        self.log_handler.new_record.connect(self.append_text)
+        log.addHandler(self.log_handler)
 
-        self.append_text("Welcome to NotionSafe. Click 'Run Backup' to start.\n")
+        self.scheduler_thread = None
+        log.info("Welcome to NotionSafe. Click 'Run Manual Backup' to start a backup.")
+
+    def show_help(self):
+        QMessageBox.information(self, "Help", "This application backs up your Notion workspace.\n\n- Use the 'Edit > Edit Configuration' menu to set up your Notion token and select pages/databases.\n- Click 'Run Manual Backup' to perform a one-time backup.\n- Use the scheduler controls to enable automatic backups.")
+
+    def show_about(self):
+        QMessageBox.about(self, "About NotionSafe", "NotionSafe v1.0\n\nA simple tool to back up your Notion workspace locally.")
+
+    def show_config_wizard(self):
+        wizard = ConfigWizard(self)
+        wizard.exec()
 
     def append_text(self, text):
+        if "ERROR" in text:
+            self.log_output.setTextColor(QColor("red"))
+            self.statusBar().showMessage('Error occurred', 5000)
+        elif "WARNING" in text:
+            self.log_output.setTextColor(QColor("orange"))
+            self.statusBar().showMessage('Warning', 5000)
+        else:
+            self.log_output.setTextColor(QColor("black"))
+
         cursor = self.log_output.textCursor()
-        cursor.movePosition(cursor.End)
-        cursor.insertText(text)
+        cursor.movePosition(QTextCursor.MoveOperation.End)
+        cursor.insertText(text + '\n')
         self.log_output.ensureCursorVisible()
 
     def run_backup(self):
         self.run_button.setEnabled(False)
+        self.statusBar().showMessage('Running backup...')
         self.log_output.clear()
-        self.append_text("Starting backup process...\n")
-        QApplication.processEvents() # Update the GUI
+        self.progress_bar.setValue(0)
+        log.info("Starting manual backup process...")
 
+        config_path = os.path.expanduser("~/.noteback/config.yaml")
+        self.worker = Worker(config_path)
+        self.worker.progress.connect(self.progress_bar.setValue)
+        self.worker.finished.connect(self.backup_finished)
+        self.worker.error.connect(self.backup_error)
+        self.worker.start()
+
+    def backup_finished(self):
+        self.run_button.setEnabled(True)
+        self.statusBar().showMessage('Backup complete', 5000)
+        self.progress_bar.setValue(100)
+
+    def backup_error(self, error_message):
+        self.run_button.setEnabled(True)
+        self.statusBar().showMessage('Backup failed!', 5000)
+        log.error(f"An unexpected error occurred: {error_message}", exc_info=True)
+
+    def start_scheduler(self):
+        self.start_scheduler_button.setEnabled(False)
+        self.stop_scheduler_button.setEnabled(True)
+        self.statusBar().showMessage('Scheduler started')
+        log.info("Starting scheduler...")
+
+        config_path = os.path.expanduser("~/.noteback/config.yaml")
         try:
-            backup_cli.main() # Run the main backup logic
-            self.append_text("\nBackup process finished.\n")
-        except Exception as e:
-            self.append_text(f"\nAn error occurred: {e}\n")
-        finally:
-            self.run_button.setEnabled(True)
-            QApplication.processEvents() # Update the GUI
+            with open(config_path, 'r') as f:
+                config = yaml.safe_load(f)
+            interval_hours = config['storage'].get('backup_frequency_hours', 24)
+        except (FileNotFoundError, KeyError):
+            log.warning("Could not read backup frequency from config. Defaulting to 24 hours.")
+            interval_hours = 24
+
+        self.scheduler_thread = SchedulerThread(self.run_backup, interval_hours)
+        self.scheduler_thread.next_run_time.connect(self.update_next_run_time)
+        self.scheduler_thread.start()
+
+    def stop_scheduler(self):
+        if self.scheduler_thread:
+            self.scheduler_thread.stop()
+            self.scheduler_thread.wait()
+        self.start_scheduler_button.setEnabled(True)
+        self.stop_scheduler_button.setEnabled(False)
+        self.statusBar().showMessage('Scheduler stopped')
+        self.next_run_label.setText("Next run: Not scheduled")
+        log.info("Scheduler stopped.")
+
+    def update_next_run_time(self, next_run):
+        self.next_run_label.setText(f"Next run: {next_run}")
 
     def closeEvent(self, event):
-        # Restore stdout when the window closes
-        sys.stdout = sys.__stdout__
-        super().closeEvent(event)
-
+        self.stop_scheduler()
+        event.accept()
 
 def main():
     app = QApplication(sys.argv)
+
+    config_path = os.path.expanduser("~/.noteback/config.yaml")
+    if not os.path.exists(config_path):
+        wizard = ConfigWizard()
+        if wizard.exec() != QWizard.Accepted:
+            sys.exit(0)
+
     window = MainWindow()
     window.show()
     sys.exit(app.exec())
