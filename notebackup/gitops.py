@@ -4,105 +4,170 @@ import shutil
 import tempfile
 from .logger import log
 
+def _get_repo(repo_path, remote_url, remote_name="origin"):
+    """
+    Initializes or opens a Git repository, ensuring it's cloned and configured.
+    """
+    if os.path.exists(os.path.join(repo_path, ".git")):
+        log.info(f"Found existing Git repository at: {repo_path}")
+        repo = git.Repo(repo_path)
+    else:
+        log.info(f"Local git repo not found. Cloning from {remote_url} into {repo_path}.")
+        os.makedirs(repo_path, exist_ok=True)
+        try:
+            repo = git.Repo.clone_from(remote_url, repo_path)
+            log.info("Successfully cloned repository.")
+        except git.exc.GitCommandError as e:
+            if "empty repository" in str(e).lower():
+                log.warning(f"Cloning failed as remote is empty. Initializing a new repository at: {repo_path}")
+                repo = git.Repo.init(repo_path)
+            else:
+                log.error(f"Failed to clone repository: {e}", exc_info=True)
+                raise
+    
+    # Ensure remote is configured
+    if remote_name not in [r.name for r in repo.remotes]:
+        repo.create_remote(remote_name, remote_url)
+    else:
+        repo.remotes[remote_name].set_url(remote_url)
+        
+    return repo
+
+def _handle_history_branch(repo, snapshot_folder, remote_name):
+    """
+    Handles the 'history' branch logic: checkout, copy, commit, and push.
+    """
+    log.info("--- Handling History Branch ---")
+    history_branch = 'history'
+    
+    # Clean working directory before checkout
+    if repo.is_dirty(untracked_files=True):
+        log.warning("Working directory is dirty. Stashing changes.")
+        repo.git.stash('save', '--include-untracked')
+
+    try:
+        # Fetch latest changes from remote history branch
+        if remote_name in [r.name for r in repo.remotes] and f"{remote_name}/{history_branch}" in repo.git.branch('-r'):
+            log.info(f"Fetching latest from remote '{history_branch}' branch.")
+            repo.remotes[remote_name].fetch()
+    except git.exc.GitCommandError as e:
+        log.warning(f"Could not fetch from remote. It might not exist yet. Error: {e}")
+
+    try:
+        log.info(f"Checking out '{history_branch}' branch.")
+        repo.git.checkout(history_branch)
+    except git.exc.GitCommandError:
+        log.info(f"'{history_branch}' branch not found, creating new orphan branch.")
+        repo.git.checkout('--orphan', history_branch)
+        repo.git.rm('-rf', '.') # Clear the branch to start fresh
+
+    # Pull with rebase to avoid merge conflicts on the linear history
+    try:
+        log.info(f"Pulling with rebase from remote '{history_branch}'.")
+        repo.git.pull(remote_name, history_branch, "--rebase")
+    except git.exc.GitCommandError as e:
+        if "couldn't find remote ref" in str(e).lower() or "no tracking information" in str(e).lower():
+            log.info(f"No remote '{history_branch}' branch to pull from. Will push as a new branch.")
+        else:
+            log.error(f"Failed to pull from remote '{history_branch}': {e}", exc_info=True)
+            raise # Re-raise critical pull errors
+            
+    # Copy snapshot into the history repo
+    snapshot_dest = os.path.join(repo.working_dir, os.path.basename(snapshot_folder))
+    log.info(f"Copying snapshot to {snapshot_dest}")
+    if os.path.exists(snapshot_dest):
+        shutil.rmtree(snapshot_dest)
+    shutil.copytree(snapshot_folder, snapshot_dest)
+
+    # Commit and Push
+    if repo.is_dirty(untracked_files=True):
+        log.info(f"Adding snapshot '{os.path.basename(snapshot_folder)}' to history branch.")
+        repo.git.add(snapshot_dest)
+        commit_message = f"feat: Add snapshot {os.path.basename(snapshot_folder)}"
+        repo.index.commit(commit_message)
+        log.info(f"Committed to history branch: '{commit_message}'")
+        
+        log.info(f"Pushing history branch to remote '{remote_name}'...")
+        repo.remotes[remote_name].push(refspec=f'{history_branch}:{history_branch}')
+    else:
+        log.info("No changes to commit in history branch.")
+
+def _handle_master_branch(repo, snapshot_folder, remote_name):
+    """
+    Handles the 'master' branch logic: checkout, clean, copy, commit, and force-push.
+    """
+    log.info("--- Handling Master Branch ---")
+    master_branch = 'master'
+
+    try:
+        log.info(f"Checking out '{master_branch}' branch.")
+        repo.git.checkout(master_branch)
+    except git.exc.GitCommandError:
+        log.info(f"'{master_branch}' branch not found, creating new orphan branch.")
+        repo.git.checkout('--orphan', master_branch)
+
+    # Clean the working directory completely
+    log.info("Cleaning working directory for master branch update.")
+    # List all files and directories except .git and remove them
+    for item in os.listdir(repo.working_dir):
+        if item == '.git':
+            continue
+        path = os.path.join(repo.working_dir, item)
+        try:
+            if os.path.isdir(path):
+                shutil.rmtree(path)
+            else:
+                os.remove(path)
+        except Exception as e:
+            log.error(f"Failed to remove {path}: {e}")
+
+
+    # Copy snapshot contents to the repo's root
+    log.info("Copying latest backup to the root of the master branch.")
+    for item in os.listdir(snapshot_folder):
+        src = os.path.join(snapshot_folder, item)
+        dest = os.path.join(repo.working_dir, item)
+        if os.path.isdir(src):
+            shutil.copytree(src, dest)
+        else:
+            shutil.copy2(src, dest)
+
+    # Commit and Force Push
+    repo.git.add(A=True)
+    if repo.is_dirty(untracked_files=True):
+        commit_message = f"feat: Update to latest backup {os.path.basename(snapshot_folder)}"
+        repo.index.commit(commit_message)
+        log.info(f"Committed latest backup to master branch: '{commit_message}'")
+        
+        log.info(f"Force pushing master branch to remote '{remote_name}'...")
+        repo.remotes[remote_name].push(refspec=f'HEAD:{master_branch}', force=True)
+    else:
+        log.info("No changes to commit in master branch.")
+
+
 def perform_git_backup(repo_path, snapshot_folder, remote_name, remote_url):
     """
-    Orchestrates a sophisticated git backup process using a main repo for history 
-    and a temporary repo for the master branch.
+    Orchestrates a git backup process for 'history' and 'master' branches.
     """
+    repo = None
     try:
-        # Normalize paths
         repo_path = os.path.normpath(repo_path)
         snapshot_folder = os.path.normpath(snapshot_folder)
 
-        # --- History Branch --- 
-        log.info("--- Handling History Branch ---")
-        history_repo = None
-        if os.path.exists(os.path.join(repo_path, ".git")):
-            log.info(f"Found existing Git repository at: {repo_path}")
-            history_repo = git.Repo(repo_path)
-        else:
-            log.info(f"Local git repo not found. Initializing by cloning from {remote_url} into a temporary directory.")
-            with tempfile.TemporaryDirectory() as temp_clone_dir:
-                try:
-                    # Clone into a temporary empty directory
-                    git.Repo.clone_from(remote_url, temp_clone_dir)
-                    log.info("Successfully cloned repository to temporary location.")
-                    # Move the .git directory to the actual repo_path
-                    shutil.move(os.path.join(temp_clone_dir, ".git"), os.path.join(repo_path, ".git"))
-                    log.info(f"Moved .git directory to {repo_path}")
-                    history_repo = git.Repo(repo_path)
-                except git.exc.GitCommandError as e:
-                    if "empty repository" in str(e).lower() or "does not appear to be a git repository" in str(e).lower():
-                        log.warning(f"Cloning failed, remote is likely empty. Initializing a new repository at: {repo_path}")
-                        history_repo = git.Repo.init(repo_path)
-                    else:
-                        log.error(f"Failed to clone repository: {e}", exc_info=True)
-                        raise
-
-        if not history_repo:
-            log.error("Fatal: Could not initialize or clone the git repository. Aborting git backup.")
-            return
-
-        # Destination for snapshot inside the history repo
-        snapshot_dest_in_repo = os.path.join(repo_path, os.path.basename(snapshot_folder))
-
-        # Only copy if the source and destination are different
-        if os.path.normpath(snapshot_folder) != os.path.normpath(snapshot_dest_in_repo):
-            # Copy the snapshot folder into the history repo
-            log.info(f"Copying {snapshot_folder} to {snapshot_dest_in_repo}")
-            if os.path.exists(snapshot_dest_in_repo):
-                shutil.rmtree(snapshot_dest_in_repo)
-            shutil.copytree(snapshot_folder, snapshot_dest_in_repo)
-
-        try:
-            log.info("Checking out 'history' branch.")
-            history_repo.git.checkout('history')
-        except git.exc.GitCommandError:
-            log.info("'history' branch not found, creating new branch.")
-            history_repo.git.checkout('-b', 'history')
-
-        log.info(f"Adding snapshot {os.path.basename(snapshot_folder)} to history branch.")
-        history_repo.git.add(snapshot_dest_in_repo)
-        if history_repo.is_dirty(untracked_files=True):
-            commit_message = f"feat: Add snapshot {os.path.basename(snapshot_folder)}"
-            history_repo.index.commit(commit_message)
-            log.info(f"Committed snapshot to history branch with message: '{commit_message}'")
-
-        if remote_name not in [r.name for r in history_repo.remotes]:
-            # Ensure the remote URL is up-to-date
-            history_repo.create_remote(remote_name, remote_url)
-        else:
-            history_repo.remotes[remote_name].set_url(remote_url)
-        
-        log.info(f"Pushing history branch to remote '{remote_name}'...")
-        history_repo.remotes[remote_name].push(refspec='history:history')
-
-        # --- Master Branch (in temporary repo) ---
-        log.info("--- Handling Master Branch ---")
         with tempfile.TemporaryDirectory() as temp_dir:
-            log.info(f"Created temporary directory for master branch: {temp_dir}")
-            master_repo = git.Repo.init(temp_dir)
+            # Move the new snapshot to a safe temporary location
+            temp_snapshot_path = os.path.join(temp_dir, os.path.basename(snapshot_folder))
+            log.info(f"Temporarily moving snapshot to {temp_snapshot_path}")
+            shutil.move(snapshot_folder, temp_snapshot_path)
 
-            # Copy snapshot contents to the temp repo
-            for item in os.listdir(snapshot_folder):
-                s = os.path.join(snapshot_folder, item)
-                d = os.path.join(temp_dir, item)
-                if os.path.isdir(s):
-                    shutil.copytree(s, d, symlinks=True)
-                else:
-                    shutil.copy2(s, d)
+            # Now the git working directory is clean.
+            repo = _get_repo(repo_path, remote_url, remote_name)
 
-            master_repo.git.add(A=True)
-            commit_message = f"feat: Update to latest backup {os.path.basename(snapshot_folder)}"
-            master_repo.index.commit(commit_message)
-            log.info(f"Committed latest backup to master branch with message: '{commit_message}'")
+            # --- History Branch ---
+            _handle_history_branch(repo, temp_snapshot_path, remote_name)
 
-            master_repo.create_remote(remote_name, remote_url)
-
-            log.info(f"Force pushing master branch to remote '{remote_name}'...")
-            master_repo.remotes[remote_name].push(refspec='HEAD:master', force=True)
-
-            master_repo.close()
+            # --- Master Branch ---
+            _handle_master_branch(repo, temp_snapshot_path, remote_name)
 
         log.info("Git backup process completed successfully.")
 
@@ -116,3 +181,6 @@ def perform_git_backup(repo_path, snapshot_folder, remote_name, remote_url):
             log.error(f"An error occurred during Git operation: {e}", exc_info=True)
     except Exception as e:
         log.error(f"An unexpected error occurred during the Git backup: {e}", exc_info=True)
+    finally:
+        if repo:
+            repo.close()

@@ -1,100 +1,102 @@
-# NotionSafe
+# NotionSafe: Your Notion Workspace Backup Tool
 
-NotionSafe is a cross-platform desktop application to backup your Notion workspaces locally. It provides a robust solution for creating versioned snapshots of your Notion pages, including attachments, and storing them on your local machine, an external drive, or a Git repository.
+NotionSafe is a cross-platform desktop application built with Python and PySide6 to create secure, local backups of your Notion workspaces. It provides a robust, versioned backup solution with both a graphical user interface (GUI) and a command-line interface (CLI).
+
+![NotionSafe Logo](./assets/logo.png)
 
 ## Features
 
-- **Local First**: Your data is always stored on your machine.
-- **Timestamped Snapshots**: Backups are organized in timestamped folders.
-- **Multiple Sync Targets**:
-  - Local folder
-  - External HDD (via `rsync`)
-  - Git repository (with `backup` and `main` branches)
-- **Git LFS**: Attachments are handled efficiently using Git LFS.
-- **Secure**: Notion tokens are stored securely in the OS keyring.
-- **Schedulable**: Supports `cron` and `systemd` for automated backups.
-- **Cross-Platform**: Built with Python and Qt (PySide6), with plans for AppImage (Linux) and PyInstaller (Windows) packaging.
+- **Cross-Platform GUI**: An easy-to-use graphical interface for configuration and backups, built with PySide6 to run on Windows, macOS, and Linux.
+- **Configuration Wizard**: A simple, step-by-step wizard to get you started quickly.
+- **Robust Git Backups**: Automatically backs up your workspace to a Git repository with a unique two-branch strategy:
+    - `history` branch: Contains a complete, versioned history of every snapshot.
+    - `master` branch: Always reflects the content of the very latest backup.
+- **Multiple Sync Targets**: Store your backups in a local folder, copy them to an external drive, and push them to a remote Git repository.
+- **Secure Token Storage**: Your Notion API token is stored securely in your operating system's native keyring.
+- **Comprehensive Test Suite**: A full suite of `pytest` tests ensures application stability and reliability.
 
-## Quick Start
+## Installation and Usage
 
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/your-username/notionsafe.git
-    cd notionsafe
-    ```
+### 1. Prerequisites
+- Python 3.10 or newer.
 
-2.  **Run the installer:**
-    This script will detect your Linux distribution, install system dependencies, create a Python virtual environment, and install the required packages.
-    ```bash
-    bash setup.sh --install
-    ```
+### 2. Installation
+Clone the repository and install the required dependencies.
 
-3.  **Activate the virtual environment:**
-    ```bash
-    source venv/bin/activate
-    ```
+```bash
+git clone https://github.com/Gfreak412/notionsafe.git
+cd notionsafe
 
-4.  **Configure Notion Integration:**
-    - Create a Notion integration: [https://www.notion.so/my-integrations](https://www.notion.so/my-integrations)
-    - Share the pages/databases you want to backup with your integration.
-    - Set your Notion API token as an environment variable:
-      ```bash
-      export NOTION_TOKEN="your_secret_token"
-      ```
-      Alternatively, the application will prompt you to save the token securely in your OS keyring on the first run.
+# Create and activate a virtual environment (recommended)
+python -m venv venv
+source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
 
-5.  **Configure your backup:**
-    Copy the example configuration file and edit it to your needs.
-    ```bash
-    mkdir -p ~/.noteback
-    cp examples/backup_config.yaml ~/.noteback/config.yaml
-    # Edit ~/.noteback/config.yaml
-    ```
+# Install dependencies
+pip install -r requirements.txt
+```
 
-6.  **Run your first backup:**
-    ```bash
-    python scripts/backup_runner.py
-    ```
+### 3. Configuration
 
-## Commands
+You can configure NotionSafe using the GUI (recommended) or by creating the configuration file manually.
 
-The `setup.sh` script creates several helper scripts in the `scripts/` directory:
+#### GUI (Recommended)
+Run the GUI application. It will detect that you have no configuration and automatically launch the setup wizard.
 
--   `backup_runner.py`: The main script to perform a backup.
--   `git_commit_update.sh`: Commits snapshots to the `backup` branch and updates the `main` branch.
--   `rsync_copy.sh`: Copies the latest snapshot to an external drive.
--   `install_systemd_timer.sh`: Installs a systemd user timer for automated backups.
+```bash
+python -m notebackup.gui
+```
+The wizard will guide you through:
+1.  Setting your Notion API token.
+2.  Choosing a local directory for your backups.
+3.  Optionally, configuring a Git repository for versioned backups.
+4.  Optionally, configuring an external drive to copy backups to.
+
+#### Manual Configuration
+1. Create a configuration file at `~/.noteback/config.yaml` (on Linux/macOS) or `C:\Users\<YourUser>\.noteback\config.yaml` (on Windows).
+2. Copy the contents of `examples/backup_config.yaml` into your new file and edit the values to match your setup.
+
+### 4. Running a Backup
+
+#### From the GUI
+If you have the GUI open, simply click the **"Run Backup Now"** button. You can view the progress in the log viewer window.
+
+#### From the Command Line
+To run a backup from the command line, execute the `cli` module:
+```bash
+python -m notebackup.cli
+```
 
 ## Development
 
--   **Linting**: `flake8 .` and `black .`
--   **Testing**: `pytest`
+- **Linting**: `flake8 .` and `black .`
+- **Testing**: `pytest`
 
 ## Project Structure
 
 ```
 .
-├── examples/
-│   └── backup_config.yaml
 ├── notebackup/
+│   ├── __init__.py
 │   ├── auth.py
 │   ├── cli.py
+│   ├── config_wizard.py
 │   ├── exporter.py
 │   ├── fs_layout.py
 │   ├── gitops.py
-│   ├── gui_stub.py
+│   ├── gui.py
+│   ├── logger.py
 │   ├── notion_api.py
 │   ├── scheduler.py
 │   └── storage.py
-├── scripts/
-│   ├── backup_runner.py
-│   ├── git_commit_update.sh
-│   ├── install_systemd_timer.sh
-│   └── rsync_copy.sh
-├── .gitattributes
+├── tests/
+│   ├── test_auth.py
+│   ├── test_cli.py
+│   └── ... (and other tests)
+├── assets/
+│   └── logo.png
+├── examples/
+│   └── backup_config.yaml
 ├── .gitignore
 ├── pyproject.toml
-├── README.md
-├── requirements.txt
-└── setup.sh
+└── requirements.txt
 ```

@@ -13,13 +13,11 @@ This project, **NotionSafe**, is a Python-based application for creating secure,
 
 ## Current Status (as of 2025-11-10)
 
-- **Git History Branch Fix:** Resolved a critical bug where the Git `history` branch would not update correctly after changing the backup directory. The `gitops.py` module is now more robust, handling cloning and initialization correctly.
-- **Comprehensive Test Suite:** Created a comprehensive test suite with 20 tests covering all core modules. This significantly improves project stability and maintainability.
-- **Backup End-to-End Success:** A full backup process, including Git remote push, completed successfully, confirming all recent bug fixes.
 - **GitOps Hardened:** Systematically debugged and fixed a series of cascading bugs in the `gitops.py` module, resulting in a fully robust and functional Git backup feature.
+- **Comprehensive Test Suite:** Created and repaired a comprehensive test suite with 20 tests covering all core modules. This significantly improves project stability and maintainability.
+- **Backup End-to-End Success:** A full backup process, including Git remote push, completed successfully, confirming all recent bug fixes.
 - **Critical Bugs Fixed:** The `AttributeError` crashes in the Configuration Wizard and GUI Log Viewer have been resolved.
 - **Markdown Post-Processing:** A robust script (`post_process.py`) is in place to fix `notion2md` output.
-- **GitOps Complete:** The Git backup feature is fully integrated into `notebackup/gitops.py`.
 - **GUI Implemented:** The application has a functional GUI.
 - **GUI Configuration Wizard:** The configuration wizard is implemented and functional.
 - **Centralized Logging:** A centralized logging system is fully implemented and integrated.
@@ -39,6 +37,31 @@ This project, **NotionSafe**, is a Python-based application for creating secure,
 | `notion_api.py`| **Implemented** | Basic wrapper for the Notion API. |
 | `scheduler.py`| **Implemented** | Cross-platform, in-process scheduler. Not yet integrated with GUI. |
 | `storage.py` | **Implemented** | Handles external drive copy logic. |
+
+---
+
+## Session Log
+
+### Session 11 (2025-11-10)
+- **Goal:** Fix the final bugs in the `gitops.py` module and ensure the test suite is passing.
+- **Accomplishments:**
+    - Diagnosed a complex bug where creating the snapshot inside the git repository working directory caused `git pull` to fail due to "unstaged changes".
+    - Refactored `gitops.py` to temporarily move the new snapshot out of the working directory before performing git operations, ensuring a clean state.
+    - Iteratively debugged and fixed the corresponding unit test in `tests/test_gitops.py`, which was failing due to incorrect mocks and assumptions about the old logic.
+    - Removed unnecessary `shutil` mocks from the test, making it a more robust integration test of the filesystem logic.
+    - Successfully ran the entire 20-test suite, confirming the stability of the application and the correctness of the `gitops` fixes.
+- **Outcome:** The `gitops` feature is now fully functional and robustly tested. The project is stable and the core features are complete.
+
+### Session 10 (2025-11-10)
+
+- **Goal:** Fix a bug where the Git `history` branch would not update if the backup directory was changed.
+- **Accomplishments:**
+    - Diagnosed the root cause in `notebackup/gitops.py`: the code was initializing a new repository instead of cloning the existing one.
+    - Implemented a robust fix: the code now clones the remote into a temporary directory and moves the `.git` folder into the new backup path, correctly preserving history.
+    - The fix also handles cases where the remote repository is empty, gracefully falling back to creating a new one.
+    - Updated the test suite (`tests/test_gitops.py`) to reflect the new, more complex logic, ensuring the fix was validated and didn't cause regressions.
+    - Ran the full test suite successfully, confirming the project's stability.
+- **Outcome:** The critical bug is resolved, and the `gitops` module is significantly more resilient. The project is stable and ready for further development.
 
 ---
 

@@ -30,12 +30,12 @@ The project is being developed with a focus on a robust command-line interface (
 | `cli.py` | **Implemented** | Core backup logic. Refactored to use `logging`. |
 | `config_wizard.py` | **Implemented** | GUI wizard is now functional. |
 | `exporter.py` | **Implemented** | Core exporting logic is complete and tested. |
-| `fs_layout.py`| **Implemented** | Handles snapshot directory creation. |
+| `fs_layout.py`| **Implemented** | Handles snapshot directory creation and `latest.txt` marker. |
 | `gitops.py` | **Implemented and hardened** | Fully integrated and robust Git backup logic. |
 | `gui.py` | **Implemented** | Main GUI application is now functional. |
 | `logger.py` | **Implemented** | Centralized logging configuration. |
 | `notion_api.py`| **Implemented** | Basic wrapper for the Notion API. |
-| `scheduler.py`| **Implemented** | Cross-platform, in-process scheduler using the `schedule` library. |
+| `scheduler.py`| **Implemented** | Cross-platform, in-process scheduler. Not yet integrated with GUI. |
 | `storage.py` | **Implemented** | Handles external drive copy logic. |
 
 ## 4. Architectural Decisions
@@ -46,6 +46,15 @@ The project is being developed with a focus on a robust command-line interface (
 
 ## 5. Session Log
 
+### Session 11 (2025-11-10)
+- **Goal:** Fix the final bugs in the `gitops.py` module and ensure the test suite is passing.
+- **Accomplishments:**
+    - Diagnosed a complex bug where creating the snapshot inside the git repository working directory caused `git pull` to fail due to "unstaged changes".
+    - Refactored `gitops.py` to temporarily move the new snapshot out of the working directory before performing git operations, ensuring a clean state.
+    - Iteratively debugged and fixed the corresponding unit test in `tests/test_gitops.py`.
+    - Successfully ran the entire 20-test suite, confirming the stability of the application.
+- **Outcome:** The `gitops` feature is now fully functional and robustly tested. The project is stable and the core features are complete.
+
 ### Session 10 (2025-11-10)
 
 - **Goal:** Fix a bug where the Git `history` branch would not update if the backup directory was changed.
@@ -53,27 +62,8 @@ The project is being developed with a focus on a robust command-line interface (
     - Diagnosed the root cause in `notebackup/gitops.py`: the code was initializing a new repository instead of cloning the existing one.
     - Implemented a robust fix: the code now clones the remote into a temporary directory and moves the `.git` folder into the new backup path, correctly preserving history.
     - The fix also handles cases where the remote repository is empty, gracefully falling back to creating a new one.
-    - Updated the test suite (`tests/test_gitops.py`) to reflect the new, more complex logic, ensuring the fix was validated and didn't cause regressions.
-    - Ran the full test suite successfully, confirming the project's stability.
-- **Outcome:** The critical bug is resolved, and the `gitops` module is significantly more resilient. The project is stable and ready for further development.
-
-### Session 9 (2025-11-09)
-
-- **Goal:** Fix a git authentication bug and improve the project's test coverage.
-- **Accomplishments:**
-    - Fixed a `credential url cannot be parsed` error in `notebackup/gitops.py` by removing a problematic `custom_environment` block.
-    - Repaired the entire test suite, which was failing due to outdated and brittle tests.
-    - Refactored `notebackup/cli.py` to separate config loading from the main backup logic, improving testability.
-    - Created a comprehensive test suite with 20 tests covering all core, non-GUI modules (`gitops.py`, `fs_layout.py`, `notion_api.py`, `logger.py`, `auth.py`, and `scheduler.py`).
-    - Investigated and explained a markdown formatting issue and a user-reported issue with a git URL.
-- **Outcome:** The project is now in a very stable state with a solid test suite, ready for new feature development.
-
-### Session 8 (2025-11-07)
-
-- **Goal:** Confirm that all bugs in the `gitops.py` module are resolved.
-- **Accomplishments:**
-    - Successfully ran a full backup without any errors, confirming the fixes from the previous session.
-- **Outcome:** The application is confirmed to be stable and fully functional.
+    - Updated the test suite (`tests/test_gitops.py`) to reflect the new, more complex logic.
+- **Outcome:** The critical bug is resolved, and the `gitops` module is significantly more resilient.
 
 ---
 
