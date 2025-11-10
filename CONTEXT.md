@@ -28,11 +28,11 @@ The project is being developed with a focus on a robust command-line interface (
 | :--- | :--- | :--- |
 | `auth.py` | **Implemented** | Handles Notion token retrieval. |
 | `cli.py` | **Implemented** | Core backup logic. Refactored to use `logging`. |
-| `config_wizard.py` | **Buggy** | GUI-based configuration wizard. Has missing widget init code. |
+| `config_wizard.py` | **Implemented** | GUI wizard is now functional. |
 | `exporter.py` | **Implemented** | Core exporting logic is complete and tested. |
 | `fs_layout.py`| **Implemented** | Handles snapshot directory creation. |
-| `gitops.py` | **Implemented** | Fully integrated Git backup logic. |
-| `gui.py` | **Buggy** | Main GUI application window. Has incorrect enum usage. |
+| `gitops.py` | **Implemented and hardened** | Fully integrated and robust Git backup logic. |
+| `gui.py` | **Implemented** | Main GUI application is now functional. |
 | `logger.py` | **Implemented** | Centralized logging configuration. |
 | `notion_api.py`| **Implemented** | Basic wrapper for the Notion API. |
 | `scheduler.py`| **Implemented** | Cross-platform, in-process scheduler using the `schedule` library. |
@@ -45,6 +45,17 @@ The project is being developed with a focus on a robust command-line interface (
 - **Modularity:** The application is structured into modules with specific responsibilities, such as `auth`, `storage`, `exporter`, etc. This promotes code organization and reusability.
 
 ## 5. Session Log
+
+### Session 10 (2025-11-10)
+
+- **Goal:** Fix a bug where the Git `history` branch would not update if the backup directory was changed.
+- **Accomplishments:**
+    - Diagnosed the root cause in `notebackup/gitops.py`: the code was initializing a new repository instead of cloning the existing one.
+    - Implemented a robust fix: the code now clones the remote into a temporary directory and moves the `.git` folder into the new backup path, correctly preserving history.
+    - The fix also handles cases where the remote repository is empty, gracefully falling back to creating a new one.
+    - Updated the test suite (`tests/test_gitops.py`) to reflect the new, more complex logic, ensuring the fix was validated and didn't cause regressions.
+    - Ran the full test suite successfully, confirming the project's stability.
+- **Outcome:** The critical bug is resolved, and the `gitops` module is significantly more resilient. The project is stable and ready for further development.
 
 ### Session 9 (2025-11-09)
 
@@ -63,36 +74,6 @@ The project is being developed with a focus on a robust command-line interface (
 - **Accomplishments:**
     - Successfully ran a full backup without any errors, confirming the fixes from the previous session.
 - **Outcome:** The application is confirmed to be stable and fully functional.
-
-### Session 7 (2025-11-07)
-
-- **Goal:** Fix a `FileNotFoundError` that was occurring during the Git backup process.
-- **Accomplishments:**
-    - Diagnosed and fixed a series of complex, cascading bugs in the `gitops.py` module.
-    - Resolved a `FileNotFoundError` caused by a stale bytecode cache and a subsequent logic error in file handling.
-    - Systematically debugged a persistent Git authentication failure, transitioning from a problematic SSH setup to a robust HTTPS with Personal Access Token (PAT) method.
-    - Diagnosed and fixed a `403 Forbidden` error by identifying incorrect PAT scopes (fine-grained vs. classic tokens).
-    - Resolved a `PermissionError` on Windows by correctly managing `GitPython` object lifecycles to prevent file locking.
-- **Outcome:** The Git backup feature is now fully robust and functional. The application is stable.
-
-### Session 6 (2025-11-06)
-
-- **Goal:** Fix critical bugs in the GUI and Configuration Wizard discovered during end-of-session testing.
-- **Next Steps:**
-    - **Fix `config_wizard.py`:** An `AttributeError` occurs because the widget creation code (e.g., `self.token_edit = QLineEdit()`) was omitted from the `__init__` methods of the wizard pages in the last refactoring. The plan is to add the widget and layout code back into the `__init__` methods.
-    - **Fix `gui.py`:** A repeating `AttributeError` occurs in the `append_text` method because `cursor.End` is used instead of the correct enum `QTextCursor.MoveOperation.End`. The plan is to correct the attribute and add the necessary `from PySide6.QtGui import QTextCursor` import.
-
-### Session 5 (2025-11-06)
-
-- **Goal:** Resolve outstanding bugs from the previous session and implement major new features based on the user's direction.
-- **Accomplishments:**
-    - **Markdown Post-Processing:** Iteratively debugged and fixed the `post_process.py` script to correctly handle Notion's exported Markdown.
-    - **Core Logic Fixes:** Modified storage logic and enabled image downloading by default.
-    - **GitOps Refactoring:** Fully integrated the `gitops.py` module.
-    - **GUI Implementation:** Created a functional GUI application with a live log viewer.
-    - **GUI Configuration Wizard:** Created a comprehensive, multi-page configuration wizard to replace the CLI script.
-    - **Centralized Logging:** Implemented a centralized logging system and refactored the application to use it.
-- **Outcome:** The application is now significantly more robust and feature-rich, but contains critical bugs discovered in final testing.
 
 ---
 
