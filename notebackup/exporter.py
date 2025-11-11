@@ -62,8 +62,13 @@ def _find_main_callable() -> Callable[..., Any] | None:
 # Primary export_cli: prefer in-process callable, else fallback to __main__, else subprocess runner.
 def _subprocess_runner(argv):
     """Run `python -m notion2md` with argv list; return exit code or raise subprocess.CalledProcessError."""
+    from .logger import log
     cmd = [sys.executable, "-m", "notion2md"] + list(argv)
-    completed = subprocess.run(cmd, check=False)
+    completed = subprocess.run(cmd, check=False, capture_output=True, text=True)
+    if completed.returncode != 0:
+        log.error(f"notion2md failed with exit code {completed.returncode}")
+        log.error(f"notion2md stdout: {completed.stdout}")
+        log.error(f"notion2md stderr: {completed.stderr}")
     return completed.returncode
 
 # Build the export_cli that other code expects to call.

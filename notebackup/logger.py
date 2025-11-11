@@ -6,7 +6,7 @@ def setup_logger():
     logger = logging.getLogger("notebackup")
     logger.setLevel(logging.INFO)
 
-    logger.propagate = False
+    logger.propagate = True
 
     if logger.hasHandlers():
         logger.handlers.clear()

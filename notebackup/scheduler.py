@@ -1,25 +1,61 @@
 import time
 import schedule
-import sys
+from PySide6.QtCore import QThread, Signal
+import datetime
 
-def run_continuously(job_func, interval_hours=24):
+class SchedulerThread(QThread):
     """
-    Runs a job at a specified interval using in-process scheduling.
-
-    This function will run in an infinite loop.
-
-    :param job_func: The function to execute at each interval.
-    :param interval_hours: The interval in hours between job executions.
+    A QThread that runs a scheduled job in the background.
     """
-    print(f"Scheduling job to run every {interval_hours} hours.")
-    schedule.every(interval_hours).hours.do(job_func)
+    status_changed = Signal(str)
+    error = Signal(str)
+    next_run_time = Signal(str)
+    job_started = Signal()
+    job_finished = Signal()
+    progress = Signal(int)
 
-    print("Scheduler started. Press Ctrl+C to stop.")
-    try:
-        while True:
+    def __init__(self, job_func, interval_hours=24, config_path='~/.noteback/config.yaml'):
+        super().__init__()
+        self.job_func = job_func
+        self.interval_hours = interval_hours
+        self.config_path = config_path
+        self.running = False
+
+    def run(self):
+        """
+        Runs the scheduler loop.
+        """
+        self.running = True
+        self.status_changed.emit(f"Scheduler started. Next run in {self.interval_hours} hours.")
+
+        schedule.every(self.interval_hours).hours.do(self.job_wrapper)
+
+        while self.running:
             schedule.run_pending()
-            # Sleep for a short duration to avoid busy-waiting
-            time.sleep(60)  # Check every minute
-    except KeyboardInterrupt:
-        print("\nScheduler stopped by user.")
-        sys.exit(0)
+            next_run = schedule.next_run() # Call next_run as a function
+            if next_run:
+                self.next_run_time.emit(next_run.strftime("%Y-%m-%d %H:%M:%S"))
+            else:
+                self.next_run_time.emit("Not scheduled") # Emit a default message if no next run
+            time.sleep(1)
+
+        self.status_changed.emit("Scheduler stopped.")
+
+    def job_wrapper(self):
+        """
+        Wrapper around the job function to handle errors.
+        """
+        try:
+            self.job_started.emit()
+            self.status_changed.emit("Backup job started...")
+            self.job_func(self.config_path, progress_callback=self.progress)
+            self.status_changed.emit(f"Backup job finished. Next run in {self.interval_hours} hours.")
+            self.job_finished.emit()
+        except Exception as e:
+            self.error.emit(f"Error during backup: {e}")
+
+    def stop(self):
+        """
+        Stops the scheduler loop.
+        """
+        self.running = False

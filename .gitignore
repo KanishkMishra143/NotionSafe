@@ -1,18 +1,13 @@
-# Python
+# Windows
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-env/
-venv/
-pip-selfcheck.json
+*.py[cod]
+*$py.class
 *.egg-info/
-dist/
-build/
-
-# Project specific
+venv/
+.pytest_cache/
+# Scripts
+scripts/install_systemd.sh
+scripts/install_windows_task.py
+scripts/run_scheduler_service.py
+# Env
 .env
-local_backups/
-*.db
-/NotebackVaults/

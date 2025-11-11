@@ -15,7 +15,7 @@ class ConfigWizard(QWizard):
         self.setStyleSheet("""
             QWizard, QWizardPage {
                 background-color: white;
-            }
+            } 
             QLabel, QCheckBox {
                 color: black;
             }

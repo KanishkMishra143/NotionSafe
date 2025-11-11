@@ -1,0 +1,74 @@
+2025-11-11 13:53:51,927 - INFO - backup_runner.py main() started.
+2025-11-11 13:53:51,928 - INFO - --- [Tue Nov 11 13:53:51 2025] Starting scheduled backup ---
+2025-11-11 13:53:54,819 - INFO - HTTP Request: GET https://api.notion.com/v1/pages/1730a912-02c3-8096-a2a6-c7ba047a603c "HTTP/1.1 200 OK"
+2025-11-11 13:54:00,894 - INFO - HTTP Request: GET https://api.notion.com/v1/pages/2300a912-02c3-8099-b898-fd32e89c40ec "HTTP/1.1 200 OK"
+2025-11-11 13:54:11,830 - INFO - --- [Tue Nov 11 13:54:11 2025] Finished scheduled backup successfully ---
+2025-11-11 13:54:11,830 - INFO - backup_runner.py main() finished.
+2025-11-11 13:57:31,065 - INFO - backup_runner.py main() started.
+2025-11-11 13:57:31,065 - INFO - --- [Tue Nov 11 13:57:31 2025] Starting scheduled backup ---
+2025-11-11 13:57:33,057 - INFO - HTTP Request: GET https://api.notion.com/v1/pages/1730a912-02c3-8096-a2a6-c7ba047a603c "HTTP/1.1 200 OK"
+2025-11-11 13:57:33,957 - INFO - HTTP Request: GET https://api.notion.com/v1/pages/2300a912-02c3-8099-b898-fd32e89c40ec "HTTP/1.1 200 OK"
+2025-11-11 13:57:39,950 - INFO - --- [Tue Nov 11 13:57:39 2025] Finished scheduled backup successfully ---
+2025-11-11 13:57:39,950 - INFO - backup_runner.py main() finished.
+2025-11-11 14:00:23,652 - INFO - backup_runner.py main() started.
+2025-11-11 14:00:23,652 - INFO - --- [Tue Nov 11 14:00:23 2025] Starting scheduled backup ---
+2025-11-11 14:00:25,464 - INFO - HTTP Request: GET https://api.notion.com/v1/pages/1730a912-02c3-8096-a2a6-c7ba047a603c "HTTP/1.1 200 OK"
+2025-11-11 14:00:26,376 - INFO - HTTP Request: GET https://api.notion.com/v1/pages/2300a912-02c3-8099-b898-fd32e89c40ec "HTTP/1.1 200 OK"
+2025-11-11 14:00:26,934 - ERROR - --- [Tue Nov 11 14:00:26 2025] Finished scheduled backup with errors ---
+2025-11-11 14:00:26,934 - INFO - backup_runner.py main() finished.
+2025-11-11 14:29:07,826 - INFO - backup_runner.py main() started.
+2025-11-11 14:29:07,826 - INFO - --- [Tue Nov 11 14:29:07 2025] Starting scheduled backup ---
+2025-11-11 14:29:09,306 - INFO - HTTP Request: GET https://api.notion.com/v1/pages/1730a912-02c3-8096-a2a6-c7ba047a603c "HTTP/1.1 200 OK"
+2025-11-11 14:29:10,200 - INFO - HTTP Request: GET https://api.notion.com/v1/pages/2300a912-02c3-8099-b898-fd32e89c40ec "HTTP/1.1 200 OK"
+2025-11-11 14:29:10,748 - ERROR - --- [Tue Nov 11 14:29:10 2025] Finished scheduled backup with errors ---
+2025-11-11 14:29:10,748 - INFO - backup_runner.py main() finished.
+2025-11-11 14:31:01,895 - INFO - backup_runner.py main() started.
+2025-11-11 14:31:01,895 - INFO - --- [Tue Nov 11 14:31:01 2025] Starting scheduled backup ---
+2025-11-11 14:31:02,488 - INFO - Created snapshot directory: C:\Users\kanishk\Desktop\checkbackuplocal\2025-11-11_14-31-02
+2025-11-11 14:31:04,590 - INFO - HTTP Request: GET https://api.notion.com/v1/pages/1730a912-02c3-8096-a2a6-c7ba047a603c "HTTP/1.1 200 OK"
+2025-11-11 14:31:04,591 - INFO - Exporting page: Utility Tools
+2025-11-11 14:31:05,141 - ERROR - Failed to export page 1730a912-02c3-8096-a2a6-c7ba047a603c: Exporter failed for page 1730a912-02c3-8096-a2a6-c7ba047a603c with exit code 1
+Traceback (most recent call last):
+  File "D:\notionsafe\notebackup\cli.py", line 51, in run_backup
+    raise Exception(f"Exporter failed for page {page_id} with exit code {result}")
+Exception: Exporter failed for page 1730a912-02c3-8096-a2a6-c7ba047a603c with exit code 1
+2025-11-11 14:31:05,546 - INFO - HTTP Request: GET https://api.notion.com/v1/pages/2300a912-02c3-8099-b898-fd32e89c40ec "HTTP/1.1 200 OK"
+2025-11-11 14:31:05,547 - INFO - Exporting page: SQL
+2025-11-11 14:31:06,088 - ERROR - Failed to export page 2300a912-02c3-8099-b898-fd32e89c40ec: Exporter failed for page 2300a912-02c3-8099-b898-fd32e89c40ec with exit code 1
+Traceback (most recent call last):
+  File "D:\notionsafe\notebackup\cli.py", line 51, in run_backup
+    raise Exception(f"Exporter failed for page {page_id} with exit code {result}")
+Exception: Exporter failed for page 2300a912-02c3-8099-b898-fd32e89c40ec with exit code 1
+2025-11-11 14:31:06,089 - ERROR - Backup process completed with errors.
+2025-11-11 14:31:06,089 - ERROR - --- [Tue Nov 11 14:31:06 2025] Finished scheduled backup with errors ---
+2025-11-11 14:31:06,089 - INFO - backup_runner.py main() finished.
+2025-11-11 14:32:44,163 - INFO - backup_runner.py main() started.
+2025-11-11 14:32:44,164 - INFO - --- [Tue Nov 11 14:32:44 2025] Starting scheduled backup ---
+2025-11-11 14:32:44,758 - INFO - Created snapshot directory: C:\Users\kanishk\Desktop\checkbackuplocal\2025-11-11_14-32-44
+2025-11-11 14:32:47,823 - INFO - HTTP Request: GET https://api.notion.com/v1/pages/1730a912-02c3-8096-a2a6-c7ba047a603c "HTTP/1.1 200 OK"
+2025-11-11 14:32:47,880 - INFO - Exporting page: Utility Tools
+2025-11-11 14:33:01,889 - INFO - HTTP Request: GET https://api.notion.com/v1/pages/2300a912-02c3-8099-b898-fd32e89c40ec "HTTP/1.1 200 OK"
+2025-11-11 14:33:02,303 - INFO - Exporting page: SQL
+2025-11-11 14:33:08,182 - INFO - Copying from C:\Users\kanishk\Desktop\checkbackuplocal\2025-11-11_14-32-44 to D:/checkbackuphdd\2025-11-11_14-32-44
+2025-11-11 14:33:08,238 - INFO - Copy to external drive completed successfully.
+2025-11-11 14:33:08,239 - INFO - Temporarily moving snapshot to C:\Users\kanishk\AppData\Local\Temp\tmpdau0j0qq\2025-11-11_14-32-44
+2025-11-11 14:33:08,241 - INFO - Found existing Git repository at: C:\Users\kanishk\Desktop\checkbackuplocal
+2025-11-11 14:33:08,302 - INFO - --- Handling History Branch ---
+2025-11-11 14:33:08,474 - WARNING - Working directory is dirty. Stashing changes.
+2025-11-11 14:33:08,739 - INFO - Fetching latest from remote 'history' branch.
+2025-11-11 14:33:09,469 - INFO - Checking out 'history' branch.
+2025-11-11 14:33:10,334 - INFO - Pulling with rebase from remote 'history'.
+2025-11-11 14:33:11,277 - INFO - Copying snapshot to C:\Users\kanishk\Desktop\checkbackuplocal\2025-11-11_14-32-44
+2025-11-11 14:33:11,712 - INFO - Adding snapshot '2025-11-11_14-32-44' to history branch.
+2025-11-11 14:33:11,939 - INFO - Committed to history branch: 'feat: Add snapshot 2025-11-11_14-32-44'
+2025-11-11 14:33:11,939 - INFO - Pushing history branch to remote 'origin'...
+2025-11-11 14:33:13,185 - INFO - --- Handling Master Branch ---
+2025-11-11 14:33:13,185 - INFO - Checking out 'master' branch.
+2025-11-11 14:33:13,478 - INFO - Cleaning working directory for master branch update.
+2025-11-11 14:33:13,478 - INFO - Copying latest backup to the root of the master branch.
+2025-11-11 14:33:13,643 - INFO - Committed latest backup to master branch: 'feat: Update to latest backup 2025-11-11_14-32-44'
+2025-11-11 14:33:13,643 - INFO - Force pushing master branch to remote 'origin'...
+2025-11-11 14:33:15,471 - INFO - Git backup process completed successfully.
+2025-11-11 14:33:15,514 - INFO - Backup process completed successfully!
+2025-11-11 14:33:15,514 - INFO - --- [Tue Nov 11 14:33:15 2025] Finished scheduled backup successfully ---
+2025-11-11 14:33:15,514 - INFO - backup_runner.py main() finished.
