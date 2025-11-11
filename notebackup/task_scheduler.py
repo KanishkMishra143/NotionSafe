@@ -5,21 +5,38 @@ import os
 def get_task_name():
     return "NotionSafeBackup"
 
-def get_script_path():
-    return os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'scripts', 'run_backup.bat'))
+def get_py_script_path():
+    """Gets the absolute path to the python backup runner script."""
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'scripts', 'backup_runner.py'))
+
+def get_launcher_script_path():
+    """Gets the absolute path to the python launcher script."""
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'scripts', 'launch_hidden.py'))
 
 def get_python_executable():
-    # This function is no longer directly used for the task command,
-    # but kept for consistency if needed elsewhere.
+    """
+    Gets the path to the pythonw.exe executable within the same virtual environment.
+    This ensures that the scheduled task runs without a console window.
+    """
     python_executable = sys.executable
+    # sys.executable could be python.exe or pythonw.exe. We want to be sure to use pythonw.exe
+    # for the background task.
     if python_executable.endswith("python.exe"):
-        return python_executable.replace("python.exe", "pythonw.exe")
+        pythonw_exe = python_executable.replace("python.exe", "pythonw.exe")
+        if os.path.exists(pythonw_exe):
+            return pythonw_exe
+    # If it's already pythonw.exe or we can't find pythonw.exe, return the original.
     return python_executable
 
 def create_task(interval_hours):
     task_name = get_task_name()
-    script_path = get_script_path()
+    launcher_script_path = get_launcher_script_path()
+    python_exe = get_python_executable()
     
+    # Execute pythonw.exe with the launcher script.
+    # The launcher script will then use subprocess.Popen with SW_HIDE to run the backup.
+    task_command = f'"{python_exe}" "{launcher_script_path}"'
+
     if interval_hours >= 24:
         schedule_type = "DAILY"
         modifier = str(int(interval_hours / 24))
@@ -36,11 +53,12 @@ def create_task(interval_hours):
     command = [
         "schtasks", "/create",
         "/tn", task_name,
-        "/tr", f'"{script_path}"',
+        "/tr", task_command,
         "/sc", schedule_type,
     ]
     if modifier:
         command.extend(["/mo", modifier])
+    command.extend(["/ru", "SYSTEM", "/rl", "HIGHEST"]) # Run as SYSTEM, highest privileges
     command.append("/f")
     
     try:

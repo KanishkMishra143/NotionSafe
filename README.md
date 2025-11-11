@@ -8,6 +8,7 @@ NotionSafe is a cross-platform desktop application built with Python and PySide6
 
 - **Cross-Platform GUI**: An easy-to-use graphical interface for configuration and backups, built with PySide6 to run on Windows, macOS, and Linux.
 - **Configuration Wizard**: A simple, step-by-step wizard to get you started quickly.
+- **OS-level Scheduled Backups**: Easily set up and manage automatic backups using your operating system's native task scheduler directly from the GUI.
 - **Robust Git Backups**: Automatically backs up your workspace to a Git repository with a unique two-branch strategy:
     - `history` branch: Contains a complete, versioned history of every snapshot.
     - `master` branch: Always reflects the content of the very latest backup.
@@ -58,13 +59,41 @@ The wizard will guide you through:
 ### 4. Running a Backup
 
 #### From the GUI
-If you have the GUI open, simply click the **"Run Backup Now"** button. You can view the progress in the log viewer window.
+If you have the GUI open, simply click the **"Run Manual Backup"** button to perform a one-time backup. You can view the progress in the log viewer window.
+
+For automatic backups, use the **"Install Scheduled Task"** and **"Uninstall Scheduled Task"** buttons. The backup frequency can be configured in your `~/.noteback/config.yaml` file under the `storage` section (e.g., `backup_frequency_hours: 24`).
 
 #### From the Command Line
 To run a backup from the command line, execute the `cli` module:
 ```bash
 python -m notebackup.cli
 ```
+
+## 5. Troubleshooting and FAQs
+
+### Q: A CMD window still pops up when the scheduled task runs!
+**A:** This is a common issue with Windows Task Scheduler. Even when using `pythonw.exe` or other silent launchers, the Task Scheduler might still force a console window to appear due to its default settings.
+
+**Resolution:** You need to manually adjust a setting within the Task Scheduler GUI:
+1.  **Open Task Scheduler:** Search for "Task Scheduler" in the Windows Start Menu.
+2.  **Locate the Task:** Navigate to `Task Scheduler Library` and find `NotionSafeBackup`.
+3.  **Access Task Properties:** Right-click on `NotionSafeBackup` and select `Properties`.
+4.  **Check "General" Tab:**
+    *   Under "Security options", ensure **"Run whether user is logged on or not"** is selected.
+    *   If you change this, you will be prompted to enter the password for the user account under which the task will run. This is necessary for the task to run silently in the background.
+    *   Also, ensure **"Run with highest privileges"** is checked.
+5.  Click `OK` to save changes.
+
+### Q: The scheduled task seems to be stuck in a loop or running too frequently.
+**A:** This usually happens if the task is configured to restart on failure, and the backup script is encountering an error.
+
+**Resolution:** Check the task's restart settings:
+1.  **Open Task Scheduler** and locate `NotionSafeBackup` (as above).
+2.  **Access Task Properties** and go to the `Settings` tab.
+3.  **"If the task fails, restart every:"**:
+    *   **Recommendation:** Uncheck this box if you don't want the task to restart automatically on failure.
+    *   **Alternative:** If restarts are desired, set the interval to a very long period (e.g., `1 day`) and set "Attempt to restart up to:" to a low number (e.g., `1` or `2`).
+4.  Click `OK` to save changes.
 
 ## Development
 
@@ -87,7 +116,8 @@ python -m notebackup.cli
 │   ├── logger.py
 │   ├── notion_api.py
 │   ├── scheduler.py
-│   └── storage.py
+│   ├── storage.py
+│   └── task_scheduler.py
 ├── tests/
 │   ├── test_auth.py
 │   ├── test_cli.py

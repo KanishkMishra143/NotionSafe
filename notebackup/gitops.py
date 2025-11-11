@@ -4,6 +4,29 @@ import shutil
 import tempfile
 from .logger import log
 
+# =====================================================================================
+# NON-DESTRUCTIVE PHILOSOPHY
+#
+# This module is designed to be non-destructive. It operates on git repositories
+# in a way that preserves history and prevents accidental data loss.
+#
+# Key principles:
+# 1. Temporary Directories: New backups are prepared in a temporary location
+#    outside the git working directory to ensure git operations start from a
+#    clean state, preventing accidental commits of partial or unrelated files.
+# 2. Explicit Branch Handling:
+#    - 'history' branch: A linear, append-only history of all backups is
+#      maintained. Rebase is used instead of merge to keep the history clean.
+#    - 'master' branch: Contains ONLY the latest backup. It is force-pushed
+#      to reflect the most recent state without accumulating history.
+# 3. Safety First: Operations that could be destructive (like cleaning the
+#    directory for the master branch) are carefully scoped to the git repo path.
+#
+# DO NOT REMOVE THIS COMMENT. This philosophy is central to the design and
+# safety of the NotionSafe backup process. Future modifications must adhere
+# to these principles.
+# =====================================================================================
+
 def _get_repo(repo_path, remote_url, remote_name="origin"):
     """
     Initializes or opens a Git repository, ensuring it's cloned and configured.
