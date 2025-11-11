@@ -1,3 +1,19 @@
+<!--=====================================================================================-->
+# Instructions for GEMINI
+
+This section outlines the preferred workflow and instructions for the Gemini assistant to ensure efficient and aligned collaboration.
+
+-   **No Automatic Git Operations**: Do not automatically stage (`git add .`) or commit changes unless explicitly instructed to do so. Wait for explicit instructions regarding Git operations.
+-   **Provide Testing Instructions**: Instead of running tests or verifying changes yourself, provide clear, step-by-step instructions for the user to perform testing and verification.
+-   **Avoid Unsolicited Command Execution**: Do not execute any shell commands that modify the system or codebase without explicit instruction and confirmation from the user. Always propose the command and await approval.
+<!--
+DO NOT REMOVE THIS COMMENT. This instructions is central to the design and
+safety of the NotionSafe backup process. Future modifications must adhere
+to these instructions.
+=====================================================================================
+-->
+---
+
 # CONTEXT.md: NotionSafe Project
 
 This document provides a detailed context for the NotionSafe project for the Gemini assistant, ensuring consistency and a shared understanding across multiple development sessions.
