@@ -2,9 +2,14 @@ import argparse
 import os
 import yaml
 import notion_client
+from notion_client.errors import APIResponseError
 from . import auth, exporter, fs_layout, storage, gitops
 from .logger import log
 from .post_process import post_process_file
+
+class InvalidNotionTokenError(Exception):
+    """Custom exception for invalid Notion API tokens."""
+    pass
 
 def get_page_title(notion, page_id):
     try:
@@ -28,7 +33,20 @@ def run_backup(config, progress_callback=None):
         log.error("Failed to get Notion token. Exiting.")
         return False
 
-    notion = notion_client.Client(auth=token)
+    try:
+        notion = notion_client.Client(auth=token)
+        # Test the token by making a simple API call (e.g., list users or search)
+        # This helps catch invalid tokens early before expensive export operations.
+        # A simple request like a user list often works.
+        notion.users.list()
+    except APIResponseError as e:
+        if e.code == 'unauthorized' or 'unauthorized' in str(e).lower() or '401' in str(e):
+            raise InvalidNotionTokenError("The provided Notion API token is invalid or unauthorized.") from e
+        else:
+            raise # Re-raise other API errors
+    except Exception as e:
+        log.error(f"An unexpected error occurred during Notion client initialization or token validation: {e}", exc_info=True)
+        return False
 
     local_backup_path = os.path.normpath(os.path.expanduser(config['storage']['local_path']))
     snapshot_path = fs_layout.create_snapshot_dir(local_backup_path)

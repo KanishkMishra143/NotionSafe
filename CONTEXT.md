@@ -1,4 +1,4 @@
-<!--=====================================================================================-->
+<!--=====================================================================================
 # Instructions for GEMINI
 
 This section outlines the preferred workflow and instructions for the Gemini assistant to ensure efficient and aligned collaboration.
@@ -6,7 +6,6 @@ This section outlines the preferred workflow and instructions for the Gemini ass
 -   **No Automatic Git Operations**: Do not automatically stage (`git add .`) or commit changes unless explicitly instructed to do so. Wait for explicit instructions regarding Git operations.
 -   **Provide Testing Instructions**: Instead of running tests or verifying changes yourself, provide clear, step-by-step instructions for the user to perform testing and verification.
 -   **Avoid Unsolicited Command Execution**: Do not execute any shell commands that modify the system or codebase without explicit instruction and confirmation from the user. Always propose the command and await approval.
-<!--
 DO NOT REMOVE THIS COMMENT. This instructions is central to the design and
 safety of the NotionSafe backup process. Future modifications must adhere
 to these instructions.
@@ -43,17 +42,17 @@ The project is being developed with a focus on a robust command-line interface (
 | Module | Status | Notes |
 | :--- | :--- | :--- |
 | `auth.py` | **Implemented** | Handles Notion token retrieval. |
-| `cli.py` | **Implemented** | Core backup logic. Now with robust error checking on exporter. |
+| `cli.py` | **Implemented** | Core backup logic. Now with robust error checking on exporter and `InvalidNotionTokenError` handling. |
 | `config_wizard.py` | **Implemented** | GUI wizard is now functional. |
 | `exporter.py` | **Implemented** | Core exporting logic. Now with enhanced error logging. |
 | `fs_layout.py`| **Implemented** | Handles snapshot directory creation and `latest.txt` marker. |
 | `gitops.py` | **Implemented and hardened** | Fully integrated and robust Git backup logic. |
-| `gui.py` | **Implemented** | Main GUI application is now functional. |
+| `gui.py` | **Implemented** | Main GUI application is now functional, with `InvalidNotionTokenError` handling. |
 | `logger.py` | **Implemented** | Centralized logging configuration improved for background tasks. |
 | `notion_api.py`| **Implemented** | Basic wrapper for the Notion API. |
 | `scheduler.py`| **Implemented** | Cross-platform, in-process scheduler. Not yet integrated with GUI. |
 | `storage.py` | **Implemented** | Handles external drive copy logic. |
-| `task_scheduler.py`| **Implemented** | Manages OS-native scheduled tasks, now with silent execution. |
+| `task_scheduler.py`| **Implemented** | Manages OS-native scheduled tasks, now with silent execution and Linux systemd support. |
 
 ## 4. Architectural Decisions
 

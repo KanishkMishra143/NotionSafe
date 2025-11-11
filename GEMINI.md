@@ -29,6 +29,8 @@ This project, **NotionSafe**, is a Python-based application for creating secure,
 
 ## Current Status (as of 2025-11-11)
 
+- **Cross-Platform Scheduled Task Management:** Implemented robust, OS-native scheduled task management for both Windows (schtasks) and Linux (systemd), ensuring silent and reliable automatic backups across platforms.
+- **Advanced Error Handling for Invalid Notion Token:** The GUI now intelligently detects invalid Notion API tokens during backup attempts and prompts the user to re-run the configuration wizard for correction.
 - **Silent Scheduled Tasks:** Successfully implemented and configured scheduled tasks to run completely silently without spawning a CMD window, resolving a persistent UI issue.
 - **Robust Error Handling:** Implemented robust error handling for the core backup process, preventing silent failures from the underlying exporter and ensuring graceful degradation.
 - **GitOps Hardened:** Systematically debugged and fixed a series of cascading bugs in the `gitops.py` module, resulting in a fully robust and functional Git backup feature.
@@ -45,21 +47,43 @@ This project, **NotionSafe**, is a Python-based application for creating secure,
 | Module | Status | Notes |
 | :--- | :--- | :--- |
 | `auth.py` | **Implemented** | Handles Notion token retrieval. |
-| `cli.py` | **Implemented** | Core backup logic. Now with robust error checking on exporter. |
+| `cli.py` | **Implemented** | Core backup logic. Now with robust error checking on exporter and `InvalidNotionTokenError` handling. |
 | `config_wizard.py` | **Implemented** | GUI wizard is now functional. |
 | `exporter.py` | **Implemented** | Core exporting logic. Now with enhanced error logging. |
 | `fs_layout.py`| **Implemented** | Handles snapshot directory creation and `latest.txt` marker. |
 | `gitops.py` | **Implemented and hardened** | Fully integrated and robust Git backup logic. |
-| `gui.py` | **Implemented** | Main GUI application is now functional. |
+| `gui.py` | **Implemented** | Main GUI application is now functional, with `InvalidNotionTokenError` handling. |
 | `logger.py` | **Implemented** | Centralized logging configuration improved for background tasks. |
 | `notion_api.py`| **Implemented** | Basic wrapper for the Notion API. |
 | `scheduler.py`| **Implemented** | Cross-platform, in-process scheduler. Not yet integrated with GUI. |
 | `storage.py` | **Implemented** | Handles external drive copy logic. |
-| `task_scheduler.py`| **Implemented** | Manages OS-native scheduled tasks, now with silent execution. |
+| `task_scheduler.py`| **Implemented** | Manages OS-native scheduled tasks, now with silent execution and Linux systemd support. |
 
 ---
 
 ## Session Log
+
+### Session 15 (2025-11-11)
+- **Goal:** Implement cross-platform scheduled task management for Linux using `systemd` timers.
+- **Accomplishments:**
+    - Modified `notebackup/task_scheduler.py` to include `platform` detection.
+    - Implemented `create_task_linux_systemd` to generate and install `.service` and `.timer` files for `systemd`. This includes setting `ExecStart` to the Python executable and `backup_runner.py`, `WorkingDirectory` to the project root, and `OnUnitActiveSec` based on the configured interval.
+    - Implemented `delete_task_linux_systemd` to stop, disable, and remove the `systemd` service and timer files.
+    - Updated the main `create_task` and `delete_task` functions to dispatch to the appropriate OS-specific implementation (Windows `schtasks` or Linux `systemd`).
+- **Outcome:** NotionSafe now supports robust, OS-native scheduled backups on both Windows and Linux, enhancing its cross-platform capabilities.
+
+### Session 14 (2025-11-11)
+- **Goal:** Implement advanced error handling in the GUI for invalid Notion API tokens.
+- **Accomplishments:**
+    - Defined a custom exception `InvalidNotionTokenError` in `notebackup/cli.py`.
+    - Modified `notebackup/cli.py` to raise `InvalidNotionTokenError` when `notion_client.Client` initialization or a test API call fails due to an unauthorized (401) error.
+    - Modified `notebackup/gui.py`:
+        - Added a new signal `invalid_token_error` to the `Worker` class.
+        - Updated the `Worker.run()` method to catch `InvalidNotionTokenError` and emit the new signal.
+        - Connected the `worker.invalid_token_error` signal to a new `handle_invalid_token_error` slot in `MainWindow`.
+        - Implemented `handle_invalid_token_error` to display a `QMessageBox` informing the user about the invalid token and prompting them to re-run the configuration wizard.
+        - Ensured that scheduled jobs also log the `InvalidNotionTokenError` appropriately.
+- **Outcome:** The GUI now provides clear, actionable feedback to the user when their Notion API token is invalid, guiding them to resolve the issue by re-running the configuration wizard.
 
 ### Session 13 (2025-11-11)
 - **Goal:** Resolve the persistent issue of a CMD window popping up when the scheduled backup task runs.
@@ -105,14 +129,11 @@ This project, **NotionSafe**, is a Python-based application for creating secure,
 
 ## 6. Future Directions
 
-With the core functionality stabilized, future work can focus on GUI integration, packaging, and usability enhancements.
+With the core functionality stabilized, future work can focus on packaging and usability enhancements.
 
-**Option 1: GUI Scheduler Integration**
-   - **Goal**: Integrate the background scheduler with the GUI. This will involve creating a dedicated "Scheduler" tab, adding controls (e.g., buttons, status indicators) to manage the scheduled backup service, and displaying its status (e.g., "Running", "Stopped", "Next backup at...").
-   - **Implementation**: This will likely involve creating a new module to manage interaction with the OS-native task scheduler (Windows Task Scheduler and `systemd` on Linux) to ensure reliability.
-
-**Option 2: Packaging and Distribution**
+**Option 1: Packaging and Distribution**
    - **Goal**: Make the application accessible to non-technical users by packaging it as a standalone executable using a tool like `PyInstaller` or `cx_Freeze`.
 
-**Option 3: Advanced Error Handling & Recovery**
-   - **Goal**: Make the GUI smarter about errors. For example, if a backup fails due to an invalid Notion token, the GUI could detect this and prompt the user to re-run the configuration wizard.
+**Option 2: GUI Scheduler Integration**
+   - **Goal**: Integrate the background scheduler with the GUI. This will involve creating a dedicated "Scheduler" tab, adding controls (e.g., buttons, status indicators) to manage the scheduled backup service, and displaying its status (e.g., "Running", "Stopped", "Next backup at...").
+   - **Implementation**: This will likely involve creating a new module to manage interaction with the OS-native task scheduler (Windows Task Scheduler and `systemd` on Linux) to ensure reliability.

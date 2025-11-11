@@ -13,6 +13,7 @@ from notebackup.config_wizard import ConfigWizard
 from notebackup.logger import log
 from notebackup.scheduler import SchedulerThread
 from notebackup import task_scheduler
+from notebackup.cli import InvalidNotionTokenError
 
 # 1. Custom logging handler that emits a Qt signal
 class QTextEditLogHandler(logging.Handler, QObject):
@@ -31,6 +32,7 @@ class Worker(QThread):
     progress = Signal(int)
     finished = Signal()
     error = Signal(str)
+    invalid_token_error = Signal() # New signal for invalid token
 
     def __init__(self, config_path):
         super().__init__()
@@ -40,6 +42,8 @@ class Worker(QThread):
         try:
             cli.main(config_path=self.config_path, progress_callback=self.progress)
             self.finished.emit()
+        except InvalidNotionTokenError:
+            self.invalid_token_error.emit()
         except Exception as e:
             self.error.emit(str(e))
 
@@ -188,6 +192,7 @@ class MainWindow(QMainWindow):
         self.worker.progress.connect(self.progress_bar.setValue)
         self.worker.finished.connect(self.backup_finished)
         self.worker.error.connect(self.backup_error)
+        self.worker.invalid_token_error.connect(self.handle_invalid_token_error) # Connect new signal
         self.worker.start()
 
     def backup_finished(self):
@@ -199,6 +204,14 @@ class MainWindow(QMainWindow):
         self.run_button.setEnabled(True)
         self.statusBar().showMessage('Backup failed!', 5000)
         log.error(f"An unexpected error occurred: {error_message}", exc_info=True)
+
+    def handle_invalid_token_error(self):
+        self.run_button.setEnabled(True)
+        self.statusBar().showMessage('Backup failed: Invalid Notion Token!', 5000)
+        QMessageBox.critical(self, "Invalid Notion Token",
+                             "The Notion API token is invalid or unauthorized.\n"
+                             "Please re-run the Configuration Wizard to update your token.")
+        self.show_config_wizard() # Prompt to re-run wizard
 
     def start_scheduler(self):
         self.start_scheduler_button.setEnabled(False)
