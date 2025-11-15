@@ -175,3 +175,32 @@ def delete_task():
         return delete_task_linux_systemd()
     else:
         return (False, "Unsupported operating system.")
+
+
+def is_task_scheduled():
+    """
+    Checks if the scheduled task exists.
+    """
+    if platform.system() == "Windows":
+        task_name = get_task_name()
+        command = ["schtasks", "/query", "/tn", task_name]
+        try:
+            # Redirect stdout and stderr to DEVNULL to run silently
+            result = subprocess.run(command, check=True, capture_output=True, text=True)
+            # If the command succeeds and finds the task, stdout will not be empty.
+            # If the task is not found, schtasks returns a non-zero exit code.
+            return "SUCCESS" in result.stdout
+        except subprocess.CalledProcessError:
+            # This error occurs if the task is not found
+            return False
+    elif platform.system() == "Linux":
+        timer_name = "notionsafe-backup.timer"
+        try:
+            # Check if the timer is enabled
+            result = subprocess.run(["systemctl", "is-enabled", timer_name], capture_output=True, text=True)
+            # is-enabled returns "enabled" and exit code 0 if it is.
+            return result.returncode == 0 and "enabled" in result.stdout.strip()
+        except Exception:
+            return False
+    else:
+        return False

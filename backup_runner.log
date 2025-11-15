@@ -391,3 +391,318 @@ Exception: Exporter failed for page 2300a912-02c3-8099-b898-fd32e89c40ec with ex
 2025-11-11 15:08:01,744 - INFO - Backup process completed successfully!
 2025-11-11 15:08:01,746 - INFO - --- [Tue Nov 11 15:08:01 2025] Finished scheduled backup successfully ---
 2025-11-11 15:08:01,746 - INFO - backup_runner.py main() finished.
+2025-11-14 15:28:06,112 - INFO - backup_runner.py main() started.
+2025-11-14 15:28:06,133 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 15:28:06,133 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 19:34:10,390 - INFO - backup_runner.py main() started.
+2025-11-14 19:34:10,402 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 19:34:10,402 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 19:40:01,868 - INFO - backup_runner.py main() started.
+2025-11-14 19:40:01,868 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 19:40:01,868 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 19:46:01,898 - INFO - backup_runner.py main() started.
+2025-11-14 19:46:01,898 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 19:46:01,898 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 19:52:01,896 - INFO - backup_runner.py main() started.
+2025-11-14 19:52:01,896 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 19:52:01,896 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 19:58:01,906 - INFO - backup_runner.py main() started.
+2025-11-14 19:58:01,907 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 19:58:01,907 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 20:04:01,896 - INFO - backup_runner.py main() started.
+2025-11-14 20:04:01,896 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 20:04:01,897 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 20:10:01,903 - INFO - backup_runner.py main() started.
+2025-11-14 20:10:01,903 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 20:10:01,903 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 20:16:04,434 - INFO - backup_runner.py main() started.
+2025-11-14 20:16:04,445 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 20:16:04,445 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 20:22:03,603 - INFO - backup_runner.py main() started.
+2025-11-14 20:22:03,613 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 20:22:03,613 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 20:28:02,074 - INFO - backup_runner.py main() started.
+2025-11-14 20:28:02,075 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 20:28:02,075 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 20:34:02,085 - INFO - backup_runner.py main() started.
+2025-11-14 20:34:02,086 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 20:34:02,086 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 20:40:02,347 - INFO - backup_runner.py main() started.
+2025-11-14 20:40:02,347 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 20:40:02,347 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 20:46:02,097 - INFO - backup_runner.py main() started.
+2025-11-14 20:46:02,097 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 20:46:02,097 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 20:52:02,103 - INFO - backup_runner.py main() started.
+2025-11-14 20:52:02,103 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 20:52:02,103 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 20:58:03,683 - INFO - backup_runner.py main() started.
+2025-11-14 20:58:03,693 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 20:58:03,693 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 21:04:04,230 - INFO - backup_runner.py main() started.
+2025-11-14 21:04:04,242 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 21:04:04,242 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 21:10:04,034 - INFO - backup_runner.py main() started.
+2025-11-14 21:10:04,044 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 21:10:04,044 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 21:16:02,042 - INFO - backup_runner.py main() started.
+2025-11-14 21:16:02,042 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 21:16:02,042 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 21:22:02,038 - INFO - backup_runner.py main() started.
+2025-11-14 21:22:02,039 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 21:22:02,039 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 21:28:02,048 - INFO - backup_runner.py main() started.
+2025-11-14 21:28:02,048 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 21:28:02,048 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 21:34:02,051 - INFO - backup_runner.py main() started.
+2025-11-14 21:34:02,052 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 21:34:02,052 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 21:40:02,478 - INFO - backup_runner.py main() started.
+2025-11-14 21:40:02,480 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 21:40:02,480 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 21:46:02,205 - INFO - backup_runner.py main() started.
+2025-11-14 21:46:02,205 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 21:46:02,205 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 21:52:02,085 - INFO - backup_runner.py main() started.
+2025-11-14 21:52:02,086 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 21:52:02,086 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 21:58:02,173 - INFO - backup_runner.py main() started.
+2025-11-14 21:58:02,174 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 21:58:02,174 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 22:04:03,951 - INFO - backup_runner.py main() started.
+2025-11-14 22:04:03,961 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 22:04:03,962 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 22:10:02,126 - INFO - backup_runner.py main() started.
+2025-11-14 22:10:02,127 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 22:10:02,127 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 22:16:03,906 - INFO - backup_runner.py main() started.
+2025-11-14 22:16:03,917 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 22:16:03,917 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 22:22:03,813 - INFO - backup_runner.py main() started.
+2025-11-14 22:22:03,823 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 22:22:03,823 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 22:28:02,203 - INFO - backup_runner.py main() started.
+2025-11-14 22:28:02,203 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 22:28:02,203 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 22:34:02,260 - INFO - backup_runner.py main() started.
+2025-11-14 22:34:02,261 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 22:34:02,261 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 22:40:02,521 - INFO - backup_runner.py main() started.
+2025-11-14 22:40:02,521 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 22:40:02,522 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 22:46:03,873 - INFO - backup_runner.py main() started.
+2025-11-14 22:46:03,883 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 22:46:03,883 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 22:52:02,160 - INFO - backup_runner.py main() started.
+2025-11-14 22:52:02,160 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 22:52:02,160 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 22:58:02,226 - INFO - backup_runner.py main() started.
+2025-11-14 22:58:02,226 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 22:58:02,226 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 23:04:02,157 - INFO - backup_runner.py main() started.
+2025-11-14 23:04:02,157 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 23:04:02,157 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 23:10:02,151 - INFO - backup_runner.py main() started.
+2025-11-14 23:10:02,151 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 23:10:02,151 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 23:16:02,151 - INFO - backup_runner.py main() started.
+2025-11-14 23:16:02,152 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 23:16:02,152 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 23:22:02,173 - INFO - backup_runner.py main() started.
+2025-11-14 23:22:02,173 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 23:22:02,173 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 23:28:02,182 - INFO - backup_runner.py main() started.
+2025-11-14 23:28:02,182 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 23:28:02,182 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 23:34:02,203 - INFO - backup_runner.py main() started.
+2025-11-14 23:34:02,204 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 23:34:02,204 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-14 23:40:02,201 - INFO - backup_runner.py main() started.
+2025-11-14 23:40:02,201 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-14 23:40:02,201 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 08:10:08,659 - INFO - backup_runner.py main() started.
+2025-11-15 08:10:08,665 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 08:10:08,665 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 08:16:07,280 - INFO - backup_runner.py main() started.
+2025-11-15 08:16:07,281 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 08:16:07,281 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 08:22:10,946 - INFO - backup_runner.py main() started.
+2025-11-15 08:22:10,963 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 08:22:10,963 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 08:28:02,859 - INFO - backup_runner.py main() started.
+2025-11-15 08:28:02,859 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 08:28:02,859 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 08:34:02,854 - INFO - backup_runner.py main() started.
+2025-11-15 08:34:02,854 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 08:34:02,854 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 08:40:02,959 - INFO - backup_runner.py main() started.
+2025-11-15 08:40:02,961 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 08:40:02,961 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 08:46:06,292 - INFO - backup_runner.py main() started.
+2025-11-15 08:46:06,308 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 08:46:06,308 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 08:52:04,971 - INFO - backup_runner.py main() started.
+2025-11-15 08:52:04,989 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 08:52:04,989 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 08:58:05,545 - INFO - backup_runner.py main() started.
+2025-11-15 08:58:05,562 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 08:58:05,562 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 09:04:04,762 - INFO - backup_runner.py main() started.
+2025-11-15 09:04:04,778 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 09:04:04,779 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 09:10:02,912 - INFO - backup_runner.py main() started.
+2025-11-15 09:10:02,912 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 09:10:02,912 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 09:16:03,064 - INFO - backup_runner.py main() started.
+2025-11-15 09:16:03,064 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 09:16:03,064 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 09:22:02,953 - INFO - backup_runner.py main() started.
+2025-11-15 09:22:02,953 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 09:22:02,953 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 09:28:03,049 - INFO - backup_runner.py main() started.
+2025-11-15 09:28:03,049 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 09:28:03,050 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 09:34:03,065 - INFO - backup_runner.py main() started.
+2025-11-15 09:34:03,065 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 09:34:03,065 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 09:40:03,039 - INFO - backup_runner.py main() started.
+2025-11-15 09:40:03,039 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 09:40:03,039 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 09:46:02,064 - INFO - backup_runner.py main() started.
+2025-11-15 09:46:02,064 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 09:46:02,064 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 09:52:01,882 - INFO - backup_runner.py main() started.
+2025-11-15 09:52:01,882 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 09:52:01,882 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 09:58:02,054 - INFO - backup_runner.py main() started.
+2025-11-15 09:58:02,055 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 09:58:02,055 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 10:04:01,873 - INFO - backup_runner.py main() started.
+2025-11-15 10:04:01,873 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 10:04:01,873 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 10:10:01,879 - INFO - backup_runner.py main() started.
+2025-11-15 10:10:01,879 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 10:10:01,879 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 10:16:01,902 - INFO - backup_runner.py main() started.
+2025-11-15 10:16:01,902 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 10:16:01,902 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 10:22:01,923 - INFO - backup_runner.py main() started.
+2025-11-15 10:22:01,924 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 10:22:01,924 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 10:28:01,918 - INFO - backup_runner.py main() started.
+2025-11-15 10:28:01,918 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 10:28:01,918 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 10:34:01,928 - INFO - backup_runner.py main() started.
+2025-11-15 10:34:01,928 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 10:34:01,928 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 10:40:01,931 - INFO - backup_runner.py main() started.
+2025-11-15 10:40:01,931 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 10:40:01,931 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 10:46:01,932 - INFO - backup_runner.py main() started.
+2025-11-15 10:46:01,933 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 10:46:01,933 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 10:52:06,054 - INFO - backup_runner.py main() started.
+2025-11-15 10:52:06,055 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 10:52:06,055 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 10:58:01,966 - INFO - backup_runner.py main() started.
+2025-11-15 10:58:01,966 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 10:58:01,966 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 11:04:01,964 - INFO - backup_runner.py main() started.
+2025-11-15 11:04:01,965 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 11:04:01,965 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 11:10:01,982 - INFO - backup_runner.py main() started.
+2025-11-15 11:10:01,982 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 11:10:01,982 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 11:16:01,983 - INFO - backup_runner.py main() started.
+2025-11-15 11:16:01,984 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 11:16:01,984 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 11:22:02,010 - INFO - backup_runner.py main() started.
+2025-11-15 11:22:02,011 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 11:22:02,011 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 11:28:02,005 - INFO - backup_runner.py main() started.
+2025-11-15 11:28:02,006 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 11:28:02,006 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 11:34:02,005 - INFO - backup_runner.py main() started.
+2025-11-15 11:34:02,005 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 11:34:02,005 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 11:40:02,010 - INFO - backup_runner.py main() started.
+2025-11-15 11:40:02,010 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 11:40:02,010 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 11:46:02,021 - INFO - backup_runner.py main() started.
+2025-11-15 11:46:02,021 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 11:46:02,021 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 11:52:02,031 - INFO - backup_runner.py main() started.
+2025-11-15 11:52:02,031 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 11:52:02,031 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 11:58:02,024 - INFO - backup_runner.py main() started.
+2025-11-15 11:58:02,024 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 11:58:02,024 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 12:04:02,036 - INFO - backup_runner.py main() started.
+2025-11-15 12:04:02,037 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 12:04:02,037 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 12:10:02,057 - INFO - backup_runner.py main() started.
+2025-11-15 12:10:02,057 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 12:10:02,057 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 12:16:08,136 - INFO - backup_runner.py main() started.
+2025-11-15 12:16:08,156 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 12:16:08,156 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 12:22:12,842 - INFO - backup_runner.py main() started.
+2025-11-15 12:22:12,858 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 12:22:12,858 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 12:28:06,166 - INFO - backup_runner.py main() started.
+2025-11-15 12:28:06,166 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 12:28:06,166 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 12:34:04,561 - INFO - backup_runner.py main() started.
+2025-11-15 12:34:04,582 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 12:34:04,582 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 12:40:04,261 - INFO - backup_runner.py main() started.
+2025-11-15 12:40:04,282 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 12:40:04,282 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 12:46:04,117 - INFO - backup_runner.py main() started.
+2025-11-15 12:46:04,137 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 12:46:04,138 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 12:52:07,986 - INFO - backup_runner.py main() started.
+2025-11-15 12:52:08,006 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 12:52:08,006 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 12:58:03,934 - INFO - backup_runner.py main() started.
+2025-11-15 12:58:03,954 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 12:58:03,955 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 13:04:07,279 - INFO - backup_runner.py main() started.
+2025-11-15 13:04:07,299 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 13:04:07,299 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 13:10:02,809 - INFO - backup_runner.py main() started.
+2025-11-15 13:10:02,835 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 13:10:02,835 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 13:16:04,044 - INFO - backup_runner.py main() started.
+2025-11-15 13:16:04,064 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 13:16:04,064 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 13:22:02,184 - INFO - backup_runner.py main() started.
+2025-11-15 13:22:02,185 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 13:22:02,200 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 13:28:01,973 - INFO - backup_runner.py main() started.
+2025-11-15 13:28:01,973 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 13:28:01,973 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 14:16:11,966 - INFO - backup_runner.py main() started.
+2025-11-15 14:16:11,982 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 14:16:11,982 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 14:22:07,704 - INFO - backup_runner.py main() started.
+2025-11-15 14:22:07,738 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 14:22:07,739 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 14:28:08,688 - INFO - backup_runner.py main() started.
+2025-11-15 14:28:08,708 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 14:28:08,708 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 14:34:02,594 - INFO - backup_runner.py main() started.
+2025-11-15 14:34:02,594 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 14:34:02,595 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 14:40:02,621 - INFO - backup_runner.py main() started.
+2025-11-15 14:40:02,622 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 14:40:02,622 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 14:46:02,626 - INFO - backup_runner.py main() started.
+2025-11-15 14:46:02,626 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 14:46:02,626 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 14:52:02,716 - INFO - backup_runner.py main() started.
+2025-11-15 14:52:02,717 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 14:52:02,717 - ERROR - Please run the configuration script first: python scripts/configure.py
+2025-11-15 21:10:09,920 - INFO - backup_runner.py main() started.
+2025-11-15 21:10:09,926 - ERROR - Error: Configuration file not found at C:\WINDOWS\system32\config\systemprofile/.noteback/config.yaml
+2025-11-15 21:10:09,926 - ERROR - Please run the configuration script first: python scripts/configure.py

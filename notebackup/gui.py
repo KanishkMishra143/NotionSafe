@@ -5,7 +5,7 @@ import time
 import yaml
 import ctypes
 from PySide6.QtCore import Signal, QObject, Qt, QThread
-from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton, QTextEdit, QVBoxLayout, QWidget, QProgressBar, QLabel, QFrame, QHBoxLayout, QMessageBox, QWizard, QStyle
+from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton, QTextEdit, QVBoxLayout, QWidget, QProgressBar, QLabel, QFrame, QHBoxLayout, QMessageBox, QWizard, QStyle, QTabWidget
 from PySide6.QtGui import QAction, QColor, QTextCursor, QIcon
 
 from notebackup import cli
@@ -49,6 +49,12 @@ class Worker(QThread):
 
 
 
+def is_admin():
+    try:
+        return ctypes.windll.shell32.IsUserAnAdmin()
+    except:
+        return False
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -81,43 +87,63 @@ class MainWindow(QMainWindow):
         # --- Status Bar ---
         self.statusBar().showMessage('Ready')
 
-        # --- Widgets ---
+        # --- Widgets that are part of the main layout ---
+        self.scheduled_backup_label = QLabel("Scheduled Backup Progress:")
+        self.scheduled_backup_label.hide() # Initially hidden
+        self.progress_bar = QProgressBar()
+        self.run_button = QPushButton(self.style().standardIcon(QStyle.SP_MediaPlay), "Run Manual Backup")
+
+        # --- Tabbed Interface ---
+        self.tabs = QTabWidget()
+        self.log_tab = QWidget()
+        self.scheduler_tab = QWidget()
+
+        self.tabs.addTab(self.log_tab, "Log")
+        self.tabs.addTab(self.scheduler_tab, "Scheduler")
+
+        # --- Log Tab Layout ---
+        log_layout = QVBoxLayout(self.log_tab)
         self.log_output = QTextEdit()
         self.log_output.setReadOnly(True)
         self.log_output.setFontFamily("Courier")
-        self.progress_bar = QProgressBar()
-        self.run_button = QPushButton(self.style().standardIcon(QStyle.SP_MediaPlay), "Run Manual Backup")
-        self.scheduled_backup_label = QLabel("Scheduled Backup Progress:")
-        self.scheduled_backup_label.hide() # Initially hidden
+        log_layout.addWidget(self.log_output)
 
-        # --- Scheduler Controls ---
-        scheduler_frame = QFrame()
-        scheduler_frame.setFrameShape(QFrame.StyledPanel)
-        scheduler_layout = QHBoxLayout(scheduler_frame)
-        self.start_scheduler_button = QPushButton(self.style().standardIcon(QStyle.SP_MediaPlay), "Start Scheduler")
-        self.stop_scheduler_button = QPushButton(self.style().standardIcon(QStyle.SP_MediaStop), "Stop Scheduler")
-        self.next_run_label = QLabel("Next run: Not scheduled")
-        scheduler_layout.addWidget(self.start_scheduler_button)
-        scheduler_layout.addWidget(self.stop_scheduler_button)
-        scheduler_layout.addWidget(self.next_run_label)
-        self.stop_scheduler_button.setEnabled(False)
+        # --- Scheduler Tab Layout ---
+        scheduler_layout = QVBoxLayout(self.scheduler_tab)
+        scheduler_layout.setAlignment(Qt.AlignTop)
 
-        # --- Task Scheduler Controls ---
-        task_scheduler_frame = QFrame()
-        task_scheduler_frame.setFrameShape(QFrame.StyledPanel)
-        task_scheduler_layout = QHBoxLayout(task_scheduler_frame)
-        self.install_task_button = QPushButton("Install Scheduled Task")
-        self.uninstall_task_button = QPushButton("Uninstall Scheduled Task")
-        task_scheduler_layout.addWidget(self.install_task_button)
-        task_scheduler_layout.addWidget(self.uninstall_task_button)
+        title_label = QLabel("OS-Native Backup Scheduler")
+        font = title_label.font()
+        font.setBold(True)
+        font.setPointSize(12)
+        title_label.setFont(font)
 
-        # --- Layout ---
+        description_label = QLabel("This scheduler uses the operating system's native task scheduler (Windows Task Scheduler or systemd on Linux) to run backups automatically in the background, even if this application is closed.")
+        description_label.setWordWrap(True)
+
+        self.scheduler_status_label = QLabel("Status: Unknown")
+        self.scheduler_toggle_button = QPushButton("Enable Scheduled Backup")
+        self.backup_frequency_label = QLabel("Backup Frequency: Unknown")
+
+        scheduler_layout.addWidget(title_label)
+        scheduler_layout.addWidget(description_label)
+        scheduler_layout.addSpacing(20)
+        
+        status_layout = QHBoxLayout()
+        status_layout.addWidget(self.scheduler_status_label)
+        status_layout.addStretch()
+        status_layout.addWidget(self.backup_frequency_label)
+        scheduler_layout.addLayout(status_layout)
+
+        scheduler_layout.addWidget(self.scheduler_toggle_button)
+        scheduler_layout.addStretch()
+
+        # --- Main Layout ---
         layout = QVBoxLayout()
-        layout.addWidget(self.log_output, 4)
-        layout.addWidget(self.scheduled_backup_label) # Add the label
+        layout.addWidget(self.tabs, 4) # Add tabs
+        layout.addWidget(self.scheduled_backup_label)
         layout.addWidget(self.progress_bar)
-        layout.addWidget(scheduler_frame)
-        layout.addWidget(task_scheduler_frame)
+        # layout.addWidget(scheduler_frame) # In-app scheduler, not OS task
         layout.addWidget(self.run_button, 1)
         central_widget = QWidget()
         central_widget.setLayout(layout)
@@ -125,10 +151,9 @@ class MainWindow(QMainWindow):
 
         # --- Connections ---
         self.run_button.clicked.connect(self.run_backup)
-        self.start_scheduler_button.clicked.connect(self.start_scheduler)
-        self.stop_scheduler_button.clicked.connect(self.stop_scheduler)
-        self.install_task_button.clicked.connect(self.install_task)
-        self.uninstall_task_button.clicked.connect(self.uninstall_task)
+        # self.start_scheduler_button.clicked.connect(self.start_scheduler)
+        # self.stop_scheduler_button.clicked.connect(self.stop_scheduler)
+        self.scheduler_toggle_button.clicked.connect(self.toggle_schedule)
 
         # --- Logging ---
         self.log_handler = QTextEditLogHandler(self)
@@ -137,6 +162,8 @@ class MainWindow(QMainWindow):
 
         self.scheduler_thread = None
         log.info("Welcome to NotionSafe. Click 'Run Manual Backup' to start a backup.")
+
+        self.update_scheduler_status() # Initial check
 
     def _scheduled_backup_job(self, config_path, progress_callback):
         """
@@ -156,7 +183,7 @@ class MainWindow(QMainWindow):
         self.scheduled_backup_label.hide()
 
     def show_help(self):
-        QMessageBox.information(self, "Help", "This application backs up your Notion workspace.\n\n- Use the 'Edit > Edit Configuration' menu to set up your Notion token and select pages/databases.\n- Click 'Run Manual Backup' to perform a one-time backup.\n- Use the scheduler controls to enable automatic backups.")
+        QMessageBox.information(self, "Help", "This application backs up your Notion workspace.\n\n- Use the 'Edit > Edit Configuration' menu to set up your Notion token and select pages/databases.\n- Click 'Run Manual Backup' to perform a one-time backup.\n- Use the 'Scheduler' tab to enable automatic background backups.")
 
     def show_about(self):
         QMessageBox.about(self, "About NotionSafe", "NotionSafe v1.0\n\nA simple tool to back up your Notion workspace locally.")
@@ -164,6 +191,7 @@ class MainWindow(QMainWindow):
     def show_config_wizard(self):
         wizard = ConfigWizard(self)
         wizard.exec()
+        self.update_scheduler_status() # Update frequency after config change
 
     def append_text(self, text):
         if "ERROR" in text:
@@ -213,75 +241,92 @@ class MainWindow(QMainWindow):
                              "Please re-run the Configuration Wizard to update your token.")
         self.show_config_wizard() # Prompt to re-run wizard
 
-    def start_scheduler(self):
-        self.start_scheduler_button.setEnabled(False)
-        self.stop_scheduler_button.setEnabled(True)
-        self.statusBar().showMessage('Scheduler started')
-        log.info("Starting scheduler...")
+    def update_scheduler_status(self):
+        is_scheduled = task_scheduler.is_task_scheduled()
+        if is_scheduled:
+            self.scheduler_status_label.setText("Status: <font color='green'><b>Enabled</b></font>")
+            self.scheduler_toggle_button.setText("Disable Scheduled Backup")
+        else:
+            self.scheduler_status_label.setText("Status: <font color='red'><b>Disabled</b></font>")
+            self.scheduler_toggle_button.setText("Enable Scheduled Backup")
 
+        # Update backup frequency display
         config_path = os.path.expanduser("~/.noteback/config.yaml")
         try:
             with open(config_path, 'r') as f:
                 config = yaml.safe_load(f)
             interval_hours = config['storage'].get('backup_frequency_hours', 24)
+            self.backup_frequency_label.setText(f"Backup Frequency: Every {interval_hours} hours")
         except (FileNotFoundError, KeyError):
-            log.warning("Could not read backup frequency from config. Defaulting to 24 hours.")
-            interval_hours = 24
+            self.backup_frequency_label.setText("Backup Frequency: Unknown")
 
-        self.scheduler_thread = SchedulerThread(self._scheduled_backup_job, interval_hours, config_path)
-        self.scheduler_thread.status_changed.connect(self.append_text)
-        self.scheduler_thread.error.connect(self.backup_error)
-        self.scheduler_thread.next_run_time.connect(self.update_next_run_time)
-        self.scheduler_thread.job_started.connect(self.scheduled_job_started)
-        self.scheduler_thread.job_finished.connect(self.scheduled_job_finished)
-        self.scheduler_thread.progress.connect(self.progress_bar.setValue)
-        self.scheduler_thread.start()
+    def toggle_schedule(self):
+        is_scheduled = task_scheduler.is_task_scheduled()
+        action = "delete-task" if is_scheduled else "create-task"
 
-    def stop_scheduler(self):
-        if self.scheduler_thread:
-            self.scheduler_thread.stop()
-            self.scheduler_thread.wait()
-        self.start_scheduler_button.setEnabled(True)
-        self.stop_scheduler_button.setEnabled(False)
-        self.statusBar().showMessage('Scheduler stopped')
-        self.next_run_label.setText("Next run: Not scheduled") # Clear the label
-        log.info("Scheduler stopped.")
+        if not is_admin():
+            log.warning("Admin privileges required. Attempting to re-launch with UAC prompt...")
+            try:
+                ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, f'-m notebackup.gui --run-as-admin {action}', None, 1)
+                # The main app doesn't exit, it just triggers the admin process
+                # We can't reliably know the outcome of the UAC prompt here, so we just log and update the UI optimistically after a delay
+                # A more robust solution might involve IPC, but this is simpler.
+                log.info("A UAC prompt should now be visible. Please approve it to continue.")
+                # We can't immediately update the status, as the user might cancel the UAC prompt.
+                # We will let the user see the result of their action. A manual refresh could be added.
+                return
+            except Exception as e:
+                log.error(f"Failed to re-launch with admin rights: {e}")
+                QMessageBox.critical(self, "Elevation Error", f"Failed to request administrator privileges: {e}")
+                return
 
-    def update_next_run_time(self, next_run): # Re-add this method
-        self.next_run_label.setText(f"Next run: {next_run}")
+        # This code runs if we are already admin, or if the above call is modified to run this part
+        log.info(f"Running scheduler action as admin: {action}")
+        if action == "delete-task":
+            success, message = task_scheduler.delete_task()
+        else: # create-task
+            config_path = os.path.expanduser("~/.noteback/config.yaml")
+            try:
+                with open(config_path, 'r') as f:
+                    config = yaml.safe_load(f)
+                interval_hours = config['storage'].get('backup_frequency_hours', 24)
+            except (FileNotFoundError, KeyError):
+                log.warning("Could not read backup frequency from config. Defaulting to 24 hours.")
+                interval_hours = 24
+            success, message = task_scheduler.create_task(interval_hours)
 
-    def install_task(self):
-        log.info("Installing scheduled task...")
-        config_path = os.path.expanduser("~/.noteback/config.yaml")
-        try:
-            with open(config_path, 'r') as f:
-                config = yaml.safe_load(f)
-            interval_hours = config['storage'].get('backup_frequency_hours', 24)
-        except (FileNotFoundError, KeyError):
-            log.warning("Could not read backup frequency from config. Defaulting to 24 hours.")
-            interval_hours = 24
-            
-        success, message = task_scheduler.create_task(interval_hours)
         if success:
             QMessageBox.information(self, "Task Scheduler", message)
+            log.info(message)
         else:
-            QMessageBox.critical(self, "Task Scheduler", message)
-        log.info(message)
-
-    def uninstall_task(self):
-        log.info("Uninstalling scheduled task...")
-        success, message = task_scheduler.delete_task()
-        if success:
-            QMessageBox.information(self, "Task Scheduler", message)
-        else:
-            QMessageBox.critical(self, "Task Scheduler", message)
-        log.info(message)
+            QMessageBox.critical(self, "Task Scheduler", f"An error occurred: {message}")
+            log.error(message)
+        
+        self.update_scheduler_status()
 
     def closeEvent(self, event):
-        self.stop_scheduler()
+        # self.stop_scheduler()
         event.accept()
 
 def main():
+    # Part of the UAC elevation process
+    if '--run-as-admin' in sys.argv:
+        action_index = sys.argv.index('--run-as-admin') + 1
+        if action_index < len(sys.argv):
+            action = sys.argv[action_index]
+            if action == "create-task":
+                config_path = os.path.expanduser("~/.noteback/config.yaml")
+                try:
+                    with open(config_path, 'r') as f:
+                        config = yaml.safe_load(f)
+                    interval_hours = config['storage'].get('backup_frequency_hours', 24)
+                except (FileNotFoundError, KeyError):
+                    interval_hours = 24
+                task_scheduler.create_task(interval_hours)
+            elif action == "delete-task":
+                task_scheduler.delete_task()
+        sys.exit(0) # The admin task is done, exit
+
     app = QApplication(sys.argv)
 
     config_path = os.path.expanduser("~/.noteback/config.yaml")

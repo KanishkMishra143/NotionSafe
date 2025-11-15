@@ -4,10 +4,16 @@ __pycache__/
 *$py.class
 *.egg-info/
 venv/
+linux_venv/
 .pytest_cache/
 # Scripts
 scripts/install_systemd.sh
 scripts/install_windows_task.py
 scripts/run_scheduler_service.py
+
+id_rsa_gfreak412
+id_rsa_gfreak412.pub
+CONTEXT.md
+GEMINI.md
 # Env
 .env
