@@ -75,7 +75,7 @@ def run_backup(config, progress_callback=None):
             processed_items += 1
             if progress_callback:
                 progress = int((processed_items / total_items) * 100)
-                progress_callback.emit(progress)
+                progress_callback(progress)
 
     for db_id in db_ids:
         log.info(f"Exporting database: {db_id}")
@@ -91,7 +91,7 @@ def run_backup(config, progress_callback=None):
             processed_items += 1
             if progress_callback:
                 progress = int((processed_items / total_items) * 100)
-                progress_callback.emit(progress)
+                progress_callback(progress)
 
     if has_errors:
         log.error("Backup process completed with errors.")

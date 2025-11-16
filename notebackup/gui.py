@@ -12,7 +12,8 @@ from notebackup import cli
 from notebackup.config_wizard import ConfigWizard
 from notebackup.logger import log
 from notebackup.scheduler import SchedulerThread
-from notebackup import task_scheduler
+from notebackup.os_scheduler import get_scheduler
+from notebackup.core import BackupRunner
 from notebackup.cli import InvalidNotionTokenError
 
 # 1. Custom logging handler that emits a Qt signal
@@ -39,13 +40,13 @@ class Worker(QThread):
         self.config_path = config_path
 
     def run(self):
-        try:
-            cli.main(config_path=self.config_path, progress_callback=self.progress)
-            self.finished.emit()
-        except InvalidNotionTokenError:
-            self.invalid_token_error.emit()
-        except Exception as e:
-            self.error.emit(str(e))
+        runner = BackupRunner(self.config_path)
+        runner.run(
+            progress_callback=self.progress.emit,
+            finished_callback=self.finished.emit,
+            error_callback=self.error.emit,
+            invalid_token_callback=self.invalid_token_error.emit
+        )
 
 
 
@@ -161,6 +162,7 @@ class MainWindow(QMainWindow):
         log.addHandler(self.log_handler)
 
         self.scheduler_thread = None
+        self.scheduler = get_scheduler()
         log.info("Welcome to NotionSafe. Click 'Run Manual Backup' to start a backup.")
 
         self.update_scheduler_status() # Initial check
@@ -242,7 +244,7 @@ class MainWindow(QMainWindow):
         self.show_config_wizard() # Prompt to re-run wizard
 
     def update_scheduler_status(self):
-        is_scheduled = task_scheduler.is_task_scheduled()
+        is_scheduled = self.scheduler.is_scheduled()
         if is_scheduled:
             self.scheduler_status_label.setText("Status: <font color='green'><b>Enabled</b></font>")
             self.scheduler_toggle_button.setText("Disable Scheduled Backup")
@@ -261,7 +263,7 @@ class MainWindow(QMainWindow):
             self.backup_frequency_label.setText("Backup Frequency: Unknown")
 
     def toggle_schedule(self):
-        is_scheduled = task_scheduler.is_task_scheduled()
+        is_scheduled = self.scheduler.is_scheduled()
         action = "delete-task" if is_scheduled else "create-task"
 
         if not is_admin():
@@ -283,7 +285,7 @@ class MainWindow(QMainWindow):
         # This code runs if we are already admin, or if the above call is modified to run this part
         log.info(f"Running scheduler action as admin: {action}")
         if action == "delete-task":
-            success, message = task_scheduler.delete_task()
+            success, message = self.scheduler.delete()
         else: # create-task
             config_path = os.path.expanduser("~/.noteback/config.yaml")
             try:
@@ -293,7 +295,7 @@ class MainWindow(QMainWindow):
             except (FileNotFoundError, KeyError):
                 log.warning("Could not read backup frequency from config. Defaulting to 24 hours.")
                 interval_hours = 24
-            success, message = task_scheduler.create_task(interval_hours)
+            success, message = self.scheduler.create(interval_hours)
 
         if success:
             QMessageBox.information(self, "Task Scheduler", message)
@@ -314,6 +316,7 @@ def main():
         action_index = sys.argv.index('--run-as-admin') + 1
         if action_index < len(sys.argv):
             action = sys.argv[action_index]
+            scheduler = get_scheduler()
             if action == "create-task":
                 config_path = os.path.expanduser("~/.noteback/config.yaml")
                 try:
@@ -322,9 +325,9 @@ def main():
                     interval_hours = config['storage'].get('backup_frequency_hours', 24)
                 except (FileNotFoundError, KeyError):
                     interval_hours = 24
-                task_scheduler.create_task(interval_hours)
+                scheduler.create(interval_hours)
             elif action == "delete-task":
-                task_scheduler.delete_task()
+                scheduler.delete()
         sys.exit(0) # The admin task is done, exit
 
     app = QApplication(sys.argv)

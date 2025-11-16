@@ -157,15 +157,18 @@ def _handle_master_branch(repo, snapshot_folder, remote_name):
 
     # Commit and Force Push
     repo.git.add(A=True)
-    if repo.is_dirty(untracked_files=True):
+    try:
         commit_message = f"feat: Update to latest backup {os.path.basename(snapshot_folder)}"
         repo.index.commit(commit_message)
         log.info(f"Committed latest backup to master branch: '{commit_message}'")
         
         log.info(f"Force pushing master branch to remote '{remote_name}'...")
         repo.remotes[remote_name].push(refspec=f'HEAD:{master_branch}', force=True)
-    else:
-        log.info("No changes to commit in master branch.")
+    except git.exc.GitCommandError as e:
+        if "nothing to commit" in str(e) or "no changes added to commit" in str(e):
+            log.info("No changes to commit in master branch.")
+        else:
+            raise # Re-raise other git errors
 
 
 def perform_git_backup(repo_path, snapshot_folder, remote_name, remote_url):
