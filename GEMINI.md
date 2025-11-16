@@ -184,36 +184,25 @@ This plan outlines the approved refactoring of the NotionSafe application to imp
         - Added `try...except keyring.errors.NoKeyringError` around `keyring.set_password` for graceful handling.
 - **Outcome:** The `KeyError` was expected to be resolved, and wizard button logic improved. However, the `KeyError` persists, indicating a deeper issue with config loading or validation in the main UI.
 
-### Plan for Next Session
+<!-- DO NOT DELETE: This section tracks critical Linux development and packaging tasks. -->
+# Linux Development and Packaging Plan
 
-1.  **Goal:** Permanently resolve the `KeyError: 'local_path'` during backup and ensure the GTK wizard's button logic is correct.
+This plan outlines the next steps for completing the Linux version of NotionSafe and preparing the application for distribution.
 
-2.  **Step 1: Defensive Coding in `notebackup/cli.py` (High Priority)**
-    *   **Problem:** The `cli.py` module currently assumes `config['storage']['local_path']` always exists and has a valid string value. If it's missing or `None`, it causes a `KeyError` or `TypeError`.
-    *   **Action:** Modify the `run_backup` function in `notebackup/cli.py` to explicitly check for the existence and validity of `config['storage']['local_path']`.
-    *   **Implementation:**
-        *   Before the line `local_backup_path = os.path.normpath(os.path.expanduser(config['storage']['local_path']))`, add a check:
-            ```python
-            if 'local_path' not in config['storage'] or not config['storage']['local_path']:
-                log.error("Configuration error: 'local_path' is missing or empty in the storage section.")
-                # Potentially raise a custom exception or return False with a clear message
-                return False
-            ```
-        *   This will provide a much clearer error message to the user if the path is indeed missing or empty.
+## Phase 1: Linux Scheduler Implementation
+*   **Goal:** Implement a robust, user-level scheduler for the Linux GUI.
+*   **Method:** Use a `systemd` timer running under the user's context (`systemctl --user`). This avoids requiring `sudo` privileges and follows modern Linux best practices.
+*   **Status:** Pending.
 
-3.  **Step 2: Investigate UI Logic for Config Loading (`notebackup/ui/gtk_ui.py`)**
-    *   **Problem:** The `KeyError` persists even after wizard fixes, suggesting the main application might be loading an old/invalid configuration without prompting the user to re-run the wizard.
-    *   **Action:** Read and analyze `notebackup/ui/gtk_ui.py` to understand its startup logic, specifically how it loads the configuration and decides whether to launch the main window or the configuration wizard.
-    *   **Hypothesis:** The `gtk_ui.py` might not be adequately validating the loaded configuration, or it might not be forcing the wizard if the config is invalid.
+## Phase 2: Application Packaging
+*   **Goal:** Package the application for easy distribution on Windows and Linux. This phase will only begin after explicit instruction from the user.
+*   **Windows Packaging:**
+    *   **Method:** Use `PyInstaller` or create GitHub packages.
+    *   **Status:** Pending.
+*   **Linux Packaging:**
+    *   **Method 1 (Standard):** Create a `tar.gz` archive for release on GitHub.
+    *   **Method 2 (Distribution-specific):**
+        *   Create a `COPR` package for Fedora/CentOS/RHEL.
+        *   Create an `AUR` package for Arch Linux.
+    *   **Status:** Pending.
 
-4.  **Step 3: Ensure Wizard Forces Valid Config (Conditional on Step 2)**
-    *   **Problem:** If `gtk_ui.py` is indeed loading an invalid config without intervention.
-    *   **Action:** Modify `gtk_ui.py` to perform a basic validation of the configuration file upon startup. If the configuration is invalid (e.g., missing `local_path`, invalid Notion token), it should *force* the user to go through the `GtkConfigWizard` before allowing access to the main application window.
-    *   **Implementation:** This would involve:
-        *   Adding a `validate_config(config)` function.
-        *   In `gtk_ui.py`'s `do_activate` or similar startup method, call `load_config` and then `validate_config`.
-        *   If `validate_config` returns `False`, launch the `GtkConfigWizard` modally. Only proceed to show the main window if the wizard completes successfully.
-
-5.  **Step 4: Re-verify Wizard Button Logic (Post-Fix)**
-    *   **Problem:** The user reported the "Finish" button reappearing on the content page. My last fix attempted to address this by setting the `SchedulePage` to incomplete by default and completing it in `on_prepare`.
-    *   **Action:** After implementing the above steps, re-test the wizard's button flow thoroughly to ensure the "Next" and "Apply" buttons behave as expected and the "Finish" button does not appear prematurely.

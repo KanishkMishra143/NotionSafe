@@ -126,6 +126,7 @@ class MainWindow(Gtk.ApplicationWindow):
 
         self.run_button = Gtk.Button(label="Run Manual Backup")
         self.run_button.connect('clicked', self.on_run_backup_clicked)
+        self.run_button.set_sensitive(False)
         self.box.append(self.run_button)
 
         # --- Connect Logging ---

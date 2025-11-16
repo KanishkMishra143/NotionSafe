@@ -136,10 +136,15 @@ python -m notebackup.cli
 
 This guide provides a comprehensive, step-by-step process for setting up a development environment for NotionSafe on a bare-metal Fedora installation. A bare-metal or full VM environment is required to properly test native Linux features like `systemd` timers.
 
+
+
 ### Step 1: Update Your System
 Before installing new packages, it's always good practice to ensure your system is up-to-date.
 ```bash
 sudo dnf update
+sudo dnf install python3.11-devel gtk4-devel gobject-introspection-devel cairo-gobject-devel gnome-keyring
+python3.11 -m pip install -r requirements-linux.txt 
+python3.11 -m pip install pygobject
 ```
 
 ### Step 2: Install Core Build Dependencies
