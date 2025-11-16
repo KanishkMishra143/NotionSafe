@@ -72,7 +72,11 @@ def is_scheduled():
     task_name = get_task_name()
     command = ["schtasks", "/query", "/tn", task_name]
     try:
-        result = subprocess.run(command, check=True, capture_output=True, text=True)
-        return "SUCCESS" in result.stdout
+        # If the task exists, this command will return 0.
+        # If not, it will return a non-zero code and raise CalledProcessError.
+        # We suppress the output as we only care about the exit code.
+        subprocess.run(command, check=True, capture_output=True)
+        return True
     except subprocess.CalledProcessError:
+        # This error means the task was not found.
         return False

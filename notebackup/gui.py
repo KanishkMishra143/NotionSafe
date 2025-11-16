@@ -4,7 +4,9 @@ import os
 import time
 import yaml
 import ctypes
-from PySide6.QtCore import Signal, QObject, Qt, QThread
+import tempfile
+import argparse
+from PySide6.QtCore import Signal, QObject, Qt, QThread, QTimer
 from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton, QTextEdit, QVBoxLayout, QWidget, QProgressBar, QLabel, QFrame, QHBoxLayout, QMessageBox, QWizard, QStyle, QTabWidget
 from PySide6.QtGui import QAction, QColor, QTextCursor, QIcon
 
@@ -28,6 +30,48 @@ class QTextEditLogHandler(logging.Handler, QObject):
     def emit(self, record):
         msg = self.format(record)
         self.new_record.emit(msg)
+
+class StatusWatcherThread(QThread):
+    """
+    A thread that polls for a status file to appear, reads the result,
+    and signals when the UI should be updated.
+    """
+    update_due = Signal(str) # Emits "SUCCESS" or "FAILURE"
+    finished = Signal()
+
+    def __init__(self, status_file, timeout=30):
+        super().__init__()
+        self.status_file = status_file
+        self.timeout_seconds = timeout
+        self.running = True
+
+    def run(self):
+        start_time = time.time()
+        found = False
+        while self.running and (time.time() - start_time) < self.timeout_seconds:
+            if os.path.exists(self.status_file):
+                found = True
+                try:
+                    with open(self.status_file, 'r') as f:
+                        result = f.read().strip()
+                    self.update_due.emit(result)
+                    os.remove(self.status_file)
+                except (IOError, OSError) as e:
+                    log.error(f"Error processing status file: {e}")
+                    self.update_due.emit("FAILURE")
+                finally:
+                    self.running = False # Stop running once file is found and processed
+            else:
+                time.sleep(0.5) # Poll every 500ms
+        
+        if not found:
+            log.warning("StatusWatcherThread timed out. The admin process may have failed or been cancelled.")
+
+        self.finished.emit()
+
+
+    def stop(self):
+        self.running = False
 
 class Worker(QThread):
     progress = Signal(int)
@@ -152,8 +196,6 @@ class MainWindow(QMainWindow):
 
         # --- Connections ---
         self.run_button.clicked.connect(self.run_backup)
-        # self.start_scheduler_button.clicked.connect(self.start_scheduler)
-        # self.stop_scheduler_button.clicked.connect(self.stop_scheduler)
         self.scheduler_toggle_button.clicked.connect(self.toggle_schedule)
 
         # --- Logging ---
@@ -243,16 +285,7 @@ class MainWindow(QMainWindow):
                              "Please re-run the Configuration Wizard to update your token.")
         self.show_config_wizard() # Prompt to re-run wizard
 
-    def update_scheduler_status(self):
-        is_scheduled = self.scheduler.is_scheduled()
-        if is_scheduled:
-            self.scheduler_status_label.setText("Status: <font color='green'><b>Enabled</b></font>")
-            self.scheduler_toggle_button.setText("Disable Scheduled Backup")
-        else:
-            self.scheduler_status_label.setText("Status: <font color='red'><b>Disabled</b></font>")
-            self.scheduler_toggle_button.setText("Enable Scheduled Backup")
-
-        # Update backup frequency display
+    def update_backup_frequency_label(self):
         config_path = os.path.expanduser("~/.noteback/config.yaml")
         try:
             with open(config_path, 'r') as f:
@@ -262,27 +295,58 @@ class MainWindow(QMainWindow):
         except (FileNotFoundError, KeyError):
             self.backup_frequency_label.setText("Backup Frequency: Unknown")
 
-    def toggle_schedule(self):
+    def update_scheduler_status(self):
+        # This check may fail due to permissions, but we call it to try anyway.
+        # The primary UI update for toggling is now handled by handle_ipc_result.
         is_scheduled = self.scheduler.is_scheduled()
-        action = "delete-task" if is_scheduled else "create-task"
+        if is_scheduled:
+            self.scheduler_status_label.setText("Status: <font color='green'><b>Enabled</b></font>")
+            self.scheduler_toggle_button.setText("Disable Scheduled Backup")
+        else:
+            self.scheduler_status_label.setText("Status: <font color='red'><b>Disabled</b></font>")
+            self.scheduler_toggle_button.setText("Enable Scheduled Backup")
+        self.update_backup_frequency_label()
+
+    def handle_ipc_result(self, result: str):
+        log.info(f"IPC result received: {result}")
+        if result == "SUCCESS":
+            # Optimistically flip the UI state, as we can't reliably query the SYSTEM task.
+            if "Enable" in self.scheduler_toggle_button.text():
+                self.scheduler_status_label.setText("Status: <font color='green'><b>Enabled</b></font>")
+                self.scheduler_toggle_button.setText("Disable Scheduled Backup")
+            else:
+                self.scheduler_status_label.setText("Status: <font color='red'><b>Disabled</b></font>")
+                self.scheduler_toggle_button.setText("Enable Scheduled Backup")
+        else:
+            QMessageBox.critical(self, "Task Scheduler Error", "The background operation to update the scheduled task failed.")
+        self.update_backup_frequency_label()
+
+    def toggle_schedule(self):
+        # We can't reliably query the task, so we determine the action based on the button text.
+        action = "delete-task" if "Disable" in self.scheduler_toggle_button.text() else "create-task"
 
         if not is_admin():
             log.warning("Admin privileges required. Attempting to re-launch with UAC prompt...")
             try:
-                ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, f'-m notebackup.gui --run-as-admin {action}', None, 1)
-                # The main app doesn't exit, it just triggers the admin process
-                # We can't reliably know the outcome of the UAC prompt here, so we just log and update the UI optimistically after a delay
-                # A more robust solution might involve IPC, but this is simpler.
+                status_file = os.path.join(tempfile.gettempdir(), f"notionsafe_{os.getpid()}.status")
+                if os.path.exists(status_file):
+                    os.remove(status_file)
+
+                command_args = f'-m notebackup.gui --run-as-admin {action} --status-file "{status_file}"'
+                ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, command_args, None, 1)
                 log.info("A UAC prompt should now be visible. Please approve it to continue.")
-                # We can't immediately update the status, as the user might cancel the UAC prompt.
-                # We will let the user see the result of their action. A manual refresh could be added.
+
+                self.status_watcher = StatusWatcherThread(status_file)
+                self.status_watcher.update_due.connect(self.handle_ipc_result)
+                self.status_watcher.finished.connect(self.status_watcher.deleteLater)
+                self.status_watcher.start()
                 return
             except Exception as e:
                 log.error(f"Failed to re-launch with admin rights: {e}")
                 QMessageBox.critical(self, "Elevation Error", f"Failed to request administrator privileges: {e}")
                 return
 
-        # This code runs if we are already admin, or if the above call is modified to run this part
+        # This code runs if we are already admin
         log.info(f"Running scheduler action as admin: {action}")
         if action == "delete-task":
             success, message = self.scheduler.delete()
@@ -311,25 +375,41 @@ class MainWindow(QMainWindow):
         event.accept()
 
 def main():
-    # Part of the UAC elevation process
-    if '--run-as-admin' in sys.argv:
-        action_index = sys.argv.index('--run-as-admin') + 1
-        if action_index < len(sys.argv):
-            action = sys.argv[action_index]
-            scheduler = get_scheduler()
-            if action == "create-task":
-                config_path = os.path.expanduser("~/.noteback/config.yaml")
-                try:
-                    with open(config_path, 'r') as f:
-                        config = yaml.safe_load(f)
-                    interval_hours = config['storage'].get('backup_frequency_hours', 24)
-                except (FileNotFoundError, KeyError):
-                    interval_hours = 24
-                scheduler.create(interval_hours)
-            elif action == "delete-task":
-                scheduler.delete()
+    # Using argparse for more robust command-line handling, especially for the elevated process
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--run-as-admin', type=str, help='The action to perform with admin rights (create-task or delete-task)')
+    parser.add_argument('--status-file', type=str, help='The file to write the status of the admin operation to for IPC.')
+    # Use parse_known_args to allow Qt's own arguments to pass through
+    args, unknown_args = parser.parse_known_args()
+
+    # Part of the UAC elevation process (IPC)
+    if args.run_as_admin:
+        action = args.run_as_admin
+        scheduler = get_scheduler()
+        success = False
+        
+        if action == "create-task":
+            config_path = os.path.expanduser("~/.noteback/config.yaml")
+            try:
+                with open(config_path, 'r') as f:
+                    config = yaml.safe_load(f)
+                interval_hours = config['storage'].get('backup_frequency_hours', 24)
+            except (FileNotFoundError, KeyError):
+                interval_hours = 24
+            success, _ = scheduler.create(interval_hours)
+        elif action == "delete-task":
+            success, _ = scheduler.delete()
+
+        if args.status_file:
+            try:
+                with open(args.status_file, 'w') as f:
+                    f.write("SUCCESS" if success else "FAILURE")
+            except IOError:
+                # If we can't write the status file, the parent process will just time out.
+                pass
         sys.exit(0) # The admin task is done, exit
 
+    # Standard GUI application startup
     app = QApplication(sys.argv)
 
     config_path = os.path.expanduser("~/.noteback/config.yaml")
