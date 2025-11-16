@@ -48,6 +48,9 @@ def run_backup(config, progress_callback=None):
         log.error(f"An unexpected error occurred during Notion client initialization or token validation: {e}", exc_info=True)
         return False
 
+    if 'storage' not in config or 'local_path' not in config['storage'] or not config['storage']['local_path']:
+        log.error("Configuration error: 'local_path' is missing or empty in the storage section. Please run the configuration wizard.")
+        return False
     local_backup_path = os.path.normpath(os.path.expanduser(config['storage']['local_path']))
     snapshot_path = fs_layout.create_snapshot_dir(local_backup_path)
     log.info(f"Created snapshot directory: {snapshot_path}")

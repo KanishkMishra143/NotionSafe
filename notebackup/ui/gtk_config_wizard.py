@@ -163,6 +163,10 @@ class NotionContentPage(Gtk.Box):
         self.fetch_button.set_sensitive(True)
         self.fetch_button.set_label("Fetch Pages & Databases")
 
+        wizard = self.get_ancestor(Gtk.Assistant)
+        if wizard:
+            wizard.set_page_complete(self, True)
+
     def on_fetch_error(self, error):
         log.error(f"Failed to fetch from Notion: {error}", exc_info=True)
         dialog = Gtk.MessageDialog(
@@ -202,12 +206,25 @@ class NotionApiPage(Gtk.Box):
         self.append(Gtk.Label(label="Enter your Notion Integration Token:", halign=Gtk.Align.START))
         
         self.token_edit = Gtk.Entry(visibility=False, placeholder_text="secret_...")
+        self.token_edit.connect('changed', self.on_token_changed)
         self.append(self.token_edit)
 
+    def on_token_changed(self, editable):
+        wizard = self.get_ancestor(Gtk.Assistant)
+        has_text = len(self.token_edit.get_text()) > 0
+        if wizard:
+            wizard.set_page_complete(self, has_text)
+
     def prepare(self):
-        existing_token = keyring.get_password(SERVICE_ID, "notion_token")
-        if existing_token:
-            self.token_edit.set_text(existing_token)
+        try:
+            existing_token = keyring.get_password(SERVICE_ID, "notion_token")
+            if existing_token:
+                self.token_edit.set_text(existing_token)
+        except keyring.errors.NoKeyringError:
+            log.warning("Keyring backend not found. Token cannot be pre-filled.")
+        
+        # Ensure completeness is set correctly on prepare
+        self.on_token_changed(self.token_edit)
 
     def get_token(self):
         return self.token_edit.get_text()
@@ -322,32 +339,46 @@ class GtkConfigWizard(Gtk.Assistant):
         self.append_page(self.api_page)
         self.set_page_title(self.api_page, "Notion Integration")
         self.set_page_type(self.api_page, Gtk.AssistantPageType.CONTENT)
+        self.set_page_complete(self.api_page, False) # Start as incomplete
 
         # Notion Content Page
         self.content_page = NotionContentPage()
         self.append_page(self.content_page)
         self.set_page_title(self.content_page, "Content Selection")
         self.set_page_type(self.content_page, Gtk.AssistantPageType.CONTENT)
-        self.set_page_complete(self.content_page, True)
+        self.set_page_complete(self.content_page, False) # Start as incomplete
 
         # Schedule Page
         self.schedule_page = SchedulePage()
         self.append_page(self.schedule_page)
         self.set_page_title(self.schedule_page, "Backup Frequency")
         self.set_page_type(self.schedule_page, Gtk.AssistantPageType.CONTENT)
-        self.set_page_complete(self.schedule_page, True)
+        self.set_page_complete(self.schedule_page, False) # Start as incomplete
 
         # Summary Page
-        summary_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        self.append_page(summary_box)
-        self.set_page_title(summary_box, "Configuration Complete")
-        self.set_page_type(summary_box, Gtk.AssistantPageType.CONFIRM)
-        summary_box.append(Gtk.Label(label="Click 'Apply' to save your configuration."))
+        self.summary_page = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        self.append_page(self.summary_page)
+        self.set_page_title(self.summary_page, "Configuration Complete")
+        self.set_page_type(self.summary_page, Gtk.AssistantPageType.CONFIRM)
+        self.summary_page.append(Gtk.Label(label="Click 'Apply' to save your configuration."))
+        self.set_page_complete(self.summary_page, False) # Incomplete until validated
 
     def on_prepare(self, widget, page):
-        page_num = self.get_current_page()
-        if page_num == 2: # Notion API Page
+        # This signal is emitted when a new page is shown
+        if page == self.api_page:
             self.api_page.prepare()
+        elif page == self.schedule_page:
+            self.set_page_complete(page, True)
+        elif page == self.summary_page:
+            # Validate previous pages before allowing apply
+            token = self.api_page.get_token()
+            storage_data = self.storage_page.get_storage_data()
+            local_path = storage_data.get('local_path')
+
+            if token and local_path:
+                self.set_page_complete(page, True)
+            else:
+                self.set_page_complete(page, False)
 
     def on_apply(self, widget):
         log.info("Applying new configuration from wizard.")
@@ -359,24 +390,36 @@ class GtkConfigWizard(Gtk.Assistant):
         
         config = {
             'storage': {
-                'backup_path': storage_data['local_path'],
-                'external_drive': storage_data['external_path'],
+                'local_path': storage_data['local_path'],
+                'external_drive': {
+                    'enabled': bool(storage_data['external_path']),
+                    'path': storage_data['external_path']
+                },
+                'git': {
+                    'enabled': bool(storage_data['git_url']),
+                    'remote_name': 'origin', # A reasonable default
+                    'remote_url': storage_data['git_url']
+                },
                 'backup_frequency_hours': backup_frequency
             },
             'notion': {
                 'page_ids': self.content_page.get_selected_page_ids(),
                 'database_ids': self.content_page.get_selected_db_ids()
-            },
-            'git': {
-                'use_git': bool(storage_data['git_url']),
-                'remote_url': storage_data['git_url']
             }
         }
 
         # Save token and config
         try:
+            # The keyring may still fail if the service isn't running,
+            # but we installed the necessary packages.
             keyring.set_password(SERVICE_ID, "notion_token", token)
-            
+            log.info("Notion token saved to system keyring.")
+        except keyring.errors.NoKeyringError:
+            log.error("Failed to save token to keyring. A backend is still not available. The token will not be saved.")
+        except Exception as e:
+            log.error(f"An unexpected error occurred while saving the token: {e}", exc_info=True)
+
+        try:
             config_dir = os.path.expanduser("~/.noteback")
             os.makedirs(config_dir, exist_ok=True)
             config_path = os.path.join(config_dir, "config.yaml")
@@ -387,11 +430,11 @@ class GtkConfigWizard(Gtk.Assistant):
             log.info(f"Configuration successfully saved to {config_path}")
             
         except Exception as e:
-            log.error(f"Failed to save configuration: {e}", exc_info=True)
+            log.error(f"Failed to save configuration file: {e}", exc_info=True)
             dialog = Gtk.MessageDialog(
                 transient_for=self.get_root(), modal=True,
                 message_type=Gtk.MessageType.ERROR, buttons=Gtk.ButtonsType.OK,
-                text="Save Failed", secondary_text=f"Could not save configuration: {e}"
+                text="Save Failed", secondary_text=f"Could not save configuration file: {e}"
             )
             dialog.connect("response", lambda d, r: d.destroy())
             dialog.present()

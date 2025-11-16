@@ -255,24 +255,53 @@ class MainWindow(Gtk.ApplicationWindow):
         self.update_scheduler_status()
 
 
+def validate_config(config):
+    """
+    Validates if the essential keys are present in the config.
+    Returns True if valid, False otherwise.
+    """
+    if not config:
+        return False
+    if 'storage' not in config:
+        return False
+    if 'local_path' not in config['storage'] or not config['storage']['local_path']:
+        return False
+    # A basic check for notion keys. A more thorough check could validate the token itself.
+    if 'notion' not in config:
+        return False
+    return True
+
 class GtkApp(Adw.Application):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.connect('activate', self.on_activate)
-        self.create_menu()
+        self.win = None
+        # Force dark theme
+        style_manager = Adw.StyleManager.get_default()
+        style_manager.set_color_scheme(Adw.ColorScheme.FORCE_DARK)
 
-    def create_menu(self):
+    def do_activate(self):
+        # Create the menu model
         menu = Gio.Menu.new()
-        
         edit_menu = Gio.Menu.new()
         edit_menu.append("Configuration", "win.show_config_wizard")
         menu.append_submenu("Edit", edit_menu)
-        
         self.set_menubar(menu)
 
-    def on_activate(self, app):
         config_path = os.path.expanduser("~/.noteback/config.yaml")
-        if not os.path.exists(config_path):
+        config = None
+        needs_config = True
+
+        if os.path.exists(config_path):
+            try:
+                with open(config_path, 'r') as f:
+                    config = yaml.safe_load(f)
+                if validate_config(config):
+                    needs_config = False
+            except (yaml.YAMLError, IOError) as e:
+                log.error(f"Error loading or parsing config file: {e}")
+                needs_config = True
+
+        if needs_config:
             # In GTK, the main window must exist for a transient dialog.
             # We show the main window, then immediately present the wizard.
             self.show_main_window()

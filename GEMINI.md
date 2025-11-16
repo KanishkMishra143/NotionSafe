@@ -17,18 +17,17 @@ to these instructions.
 
 ## Project Overview
 
-This project, **NotionSafe**, is a Python-based application for creating secure, local backups of a Notion workspace. It features a command-line interface (CLI) and a graphical user interface (GUI) built with PySide6 for Windows and PyGObject (GTK) for Linux.
+This project, **NotionSafe**, is a Python-based application for creating secure, local backups of a Notion workspace. It features a command-line interface (CLI) and a graphical user interface (GUI) built with PySide6.
 
 **Key Technologies:**
 - **Language:** Python 3.10+
-- **GUI:** PySide6 (Windows), PyGObject (Linux)
-- **Dependencies:** `PyYAML`, `keyring`, `GitPython`, `schedule`, `notion-client`, `PyGObject`
+- **GUI:** PySide6
+- **Dependencies:** `PyYAML`, `keyring`, `GitPython`, `schedule`, `notion-client`
 
 ---
 
-## Current Status (as of 2025-11-16)
+## Current Status (as of 2025-11-11)
 
-- **Cross-Platform GUI:** Implemented a full-featured GTK-based user interface for Linux, achieving functional parity with the existing Windows PySide6 UI. The application now offers a native experience on both major desktop platforms.
 - **Cross-Platform Scheduled Task Management:** Implemented robust, OS-native scheduled task management for both Windows (schtasks) and Linux (systemd), ensuring silent and reliable automatic backups across platforms.
 - **Advanced Error Handling for Invalid Notion Token:** The GUI now intelligently detects invalid Notion API tokens during backup attempts and prompts the user to re-run the configuration wizard for correction.
 - **Silent Scheduled Tasks:** Successfully implemented and configured scheduled tasks to run completely silently without spawning a CMD window, resolving a persistent UI issue.
@@ -38,8 +37,8 @@ This project, **NotionSafe**, is a Python-based application for creating secure,
 - **Backup End-to-End Success:** A full backup process, including Git remote push, completed successfully, confirming all recent bug fixes.
 - **Critical Bugs Fixed:** The `AttributeError` crashes in the Configuration Wizard and GUI Log Viewer have been resolved.
 - **Markdown Post-Processing:** A robust script (`post_process.py`) is in place to fix `notion2md` output.
-- **GUI Implemented:** The application has a functional GUI for both Windows and Linux.
-- **GUI Configuration Wizard:** The configuration wizard is implemented and functional on both platforms.
+- **GUI Implemented:** The application has a functional GUI.
+- **GUI Configuration Wizard:** The configuration wizard is implemented and functional.
 - **Centralized Logging:** A centralized logging system is fully implemented and integrated.
 
 ### Module Implementation Status
@@ -48,36 +47,20 @@ This project, **NotionSafe**, is a Python-based application for creating secure,
 | :--- | :--- | :--- |
 | `auth.py` | **Implemented** | Handles Notion token retrieval. |
 | `cli.py` | **Implemented** | Core backup logic. Now with robust error checking on exporter and `InvalidNotionTokenError` handling. |
-| `core.py` | **Implemented** | UI-agnostic backup runner. |
+| `config_wizard.py` | **Implemented** | GUI wizard is now functional. |
 | `exporter.py` | **Implemented** | Core exporting logic. Now with enhanced error logging. |
 | `fs_layout.py`| **Implemented** | Handles snapshot directory creation and `latest.txt` marker. |
 | `gitops.py` | **Implemented and hardened** | Fully integrated and robust Git backup logic. |
+| `gui.py` | **Implemented** | Main GUI application is now functional, with `InvalidNotionTokenError` handling. |
 | `logger.py` | **Implemented** | Centralized logging configuration improved for background tasks. |
 | `notion_api.py`| **Implemented** | Basic wrapper for the Notion API. |
-| `os_scheduler/`| **Implemented** | Cross-platform OS-native scheduler package. |
-| `ui/qt_ui.py` | **Implemented** | Main Qt GUI application. |
-| `ui/qt_config_wizard.py` | **Implemented** | Qt configuration wizard. |
-| `ui/gtk_ui.py` | **Implemented** | Main GTK GUI application for Linux. |
-| `ui/gtk_config_wizard.py` | **Implemented** | GTK configuration wizard for Linux. |
+| `scheduler.py`| **Implemented** | Cross-platform, in-process scheduler. Not yet integrated with GUI. |
 | `storage.py` | **Implemented** | Handles external drive copy logic. |
+| `task_scheduler.py`| **Implemented** | Manages OS-native scheduled tasks, now with silent execution and Linux systemd support. |
 
 ---
 
 ## Session Log
-
-### Session 16 (2025-11-16)
-- **Goal:** Implement Phase 4: Create a GTK-based GUI for Linux.
-- **Accomplishments:**
-    - Added `PyGObject` as an optional dependency for Linux in `pyproject.toml`.
-    - Created a new `notebackup/ui/gtk_ui.py` module to house the GTK application.
-    - Implemented a `MainWindow` with a tabbed interface (Log, Scheduler), progress bar, and manual backup button, mirroring the Qt UI.
-    - Created a thread-safe `GtkLogHandler` to pipe application logs into a `Gtk.TextView`.
-    - Integrated the core `BackupRunner` in a separate thread, using `GLib.idle_add` for safe UI updates.
-    - Implemented the Scheduler tab, leveraging the existing `os_scheduler` backend.
-    - Created a full-featured, multi-page configuration wizard in `notebackup/ui/gtk_config_wizard.py` using `Gtk.Assistant`.
-    - The wizard replicates all functionality from the Qt version, including storage options, API key handling (with `keyring`), and dynamic content selection from the Notion API.
-    - Updated the main entry point (`notebackup/__main__.py`) to detect the OS and launch the appropriate UI (Qt for Windows, GTK for Linux).
-- **Outcome:** Phase 4 is complete. NotionSafe is now a cross-platform application with a native-feeling GUI on both Windows and Linux.
 
 ### Session 15 (2025-11-11)
 - **Goal:** Implement cross-platform scheduled task management for Linux using `systemd` timers.
@@ -113,7 +96,7 @@ This project, **NotionSafe**, is a Python-based application for creating secure,
     - Diagnosed that the issue was not with the Python code or scripting wrappers, but with a specific default setting in the Windows Task Scheduler GUI.
     - Modified `notebackup/task_scheduler.py` to automatically set the task to "Run whether user is logged on or not" and "Run with highest privileges" (`/ru SYSTEM`, `/rl HIGHEST`) during task creation.
     - Provided step-by-step instructions to the user to manually change the "Security options" in the Task Scheduler's "General" tab to "Run whether user is logged on or not" for existing tasks.
-    - Confirmed with the user that this manual change successfully resolved the CMD window popping up.
+    - Confirmed with the user that this manual change successfully resolved the CMD window appearing.
 - **Outcome:** The scheduled backup task now runs completely silently without any CMD window appearing. The application's task scheduling is robust and user-friendly.
 
 ### Session 12 (2025-11-11)
@@ -143,44 +126,94 @@ This project, **NotionSafe**, is a Python-based application for creating secure,
     - Updated the test suite (`tests/test_gitops.py`) to reflect the new, more complex logic.
 - **Outcome:** The critical bug is resolved, and the `gitops` module is significantly more resilient.
 
----
-
 ## 6. Future Directions
 
-With the core functionality and cross-platform UIs now complete, future work can focus on packaging, distribution, and final polish.
+With the core functionality stabilized, future work can focus on packaging and usability enhancements.
 
 **Option 1: Packaging and Distribution**
-   - **Goal**: Make the application accessible to non-technical users by packaging it as a standalone executable for Windows (`.exe`) and a distributable package for Linux (e.g., `.deb`, Flatpak, or AppImage). This would involve using tools like `PyInstaller` or `cx_Freeze`.
+   - **Goal**: Make the application accessible to non-technical users by packaging it as a standalone executable using a tool like `PyInstaller` or `cx_Freeze`.
 
-**Option 2: UI/UX Polish**
-   - **Goal**: Refine the user experience on both Qt and GTK platforms. This could include adding application icons, improving layout spacing, providing more detailed tooltips, and ensuring a consistent look and feel.
-
+**Option 2: GUI Scheduler Integration**
+   - **Goal**: Integrate the background scheduler with the GUI. This will involve creating a dedicated "Scheduler" tab, adding controls (e.g., buttons, status indicators) to manage the scheduled backup service, and displaying its status (e.g., "Running", "Stopped", "Next backup at...").
+   - **Implementation**: This will likely involve creating a new module to manage interaction with the OS-native task scheduler (Windows Task Scheduler and `systemd` on Linux) to ensure reliability.
 ---
 
 # Project Refactoring Plan (Approved 2025-11-16)
 
 This plan outlines the approved refactoring of the NotionSafe application to improve modularity, introduce OS-specific backends, and support a GTK-based GUI for Linux.
 
-## Phase 1: Core Logic Abstraction (Complete)
+## Phase 1: Core Logic Abstraction
 
 *   **Goal:** Decouple the core backup functionality from the user interface.
-*   **Action:** Move the backup worker thread and related logic from `notebackup/gui.py` into a new, UI-agnostic `notebackup/core.py` module.
+*   **Action:** Move the backup worker thread and related logic from `notebackup/gui.py` into a new, UI-agnostic `notebackup/core.py` module. This allows both Qt and GTK GUIs to share the same underlying logic.
 
-## Phase 2: OS-Specific Module Refactoring (Complete)
+## Phase 2: OS-Specific Module Refactoring
 
 *   **Goal:** Organize OS-specific code cleanly.
 *   **Action:** Replace `task_scheduler.py` with a new `notebackup/scheduler` package containing separate modules for Windows (`windows.py`) and Linux (`linux.py`). A factory function will provide the correct implementation at runtime.
 
-## Phase 3: UI Implementation & Dispatch (Complete)
+## Phase 3: UI Implementation & Dispatch
 
 *   **Goal:** Provide a native UI for each OS.
 *   **Action:**
     1.  Create a primary entry script that detects the OS.
     2.  On Windows, the script will launch the existing PySide6 GUI.
-    3.  On Linux, the script will launch a new GTK-based GUI.
+    3.  On Linux, the script will launch a new GTK-based GUI (to be created).
     4.  The existing `gui.py` and `config_wizard.py` will be moved into a `notebackup/ui/` sub-package.
 
-## Phase 4: GTK GUI Creation (Complete)
+## Phase 4: GTK GUI Creation
 
 *   **Goal:** Build a functional and user-friendly GTK interface for Linux users.
 *   **Action:** Implement a new GTK GUI that mirrors the functionality of the Qt version, using the abstracted core logic from Phase 1.
+---
+
+## Session 16 (2025-11-16)
+
+- **Goal:** Fix `KeyError: 'local_path'` and wizard button logic in GTK UI.
+- **Accomplishments:**
+    - Added `try...except keyring.errors.NoKeyringError` to `NotionApiPage.prepare` in `notebackup/ui/gtk_config_wizard.py` to handle missing keyring backend gracefully.
+    - Modified `GtkConfigWizard.add_pages` in `notebackup/ui/gtk_config_wizard.py` to:
+        - Make `summary_box` a class member `self.summary_page`.
+        - Set `self.summary_page` to `False` (incomplete) by default.
+        - Set `self.schedule_page` to `False` (incomplete) by default.
+    - Modified `GtkConfigWizard.on_prepare` in `notebackup/ui/gtk_config_wizard.py` to:
+        - Set `self.schedule_page` to `True` (complete) when it is prepared.
+        - Validate API token before setting `self.summary_page` to `True` (complete).
+    - Modified `GtkConfigWizard.on_apply` in `notebackup/ui/gtk_config_wizard.py` to:
+        - Corrected the key name from `'backup_path'` to `'local_path'` in the `config['storage']` dictionary.
+        - Added `try...except keyring.errors.NoKeyringError` around `keyring.set_password` for graceful handling.
+- **Outcome:** The `KeyError` was expected to be resolved, and wizard button logic improved. However, the `KeyError` persists, indicating a deeper issue with config loading or validation in the main UI.
+
+### Plan for Next Session
+
+1.  **Goal:** Permanently resolve the `KeyError: 'local_path'` during backup and ensure the GTK wizard's button logic is correct.
+
+2.  **Step 1: Defensive Coding in `notebackup/cli.py` (High Priority)**
+    *   **Problem:** The `cli.py` module currently assumes `config['storage']['local_path']` always exists and has a valid string value. If it's missing or `None`, it causes a `KeyError` or `TypeError`.
+    *   **Action:** Modify the `run_backup` function in `notebackup/cli.py` to explicitly check for the existence and validity of `config['storage']['local_path']`.
+    *   **Implementation:**
+        *   Before the line `local_backup_path = os.path.normpath(os.path.expanduser(config['storage']['local_path']))`, add a check:
+            ```python
+            if 'local_path' not in config['storage'] or not config['storage']['local_path']:
+                log.error("Configuration error: 'local_path' is missing or empty in the storage section.")
+                # Potentially raise a custom exception or return False with a clear message
+                return False
+            ```
+        *   This will provide a much clearer error message to the user if the path is indeed missing or empty.
+
+3.  **Step 2: Investigate UI Logic for Config Loading (`notebackup/ui/gtk_ui.py`)**
+    *   **Problem:** The `KeyError` persists even after wizard fixes, suggesting the main application might be loading an old/invalid configuration without prompting the user to re-run the wizard.
+    *   **Action:** Read and analyze `notebackup/ui/gtk_ui.py` to understand its startup logic, specifically how it loads the configuration and decides whether to launch the main window or the configuration wizard.
+    *   **Hypothesis:** The `gtk_ui.py` might not be adequately validating the loaded configuration, or it might not be forcing the wizard if the config is invalid.
+
+4.  **Step 3: Ensure Wizard Forces Valid Config (Conditional on Step 2)**
+    *   **Problem:** If `gtk_ui.py` is indeed loading an invalid config without intervention.
+    *   **Action:** Modify `gtk_ui.py` to perform a basic validation of the configuration file upon startup. If the configuration is invalid (e.g., missing `local_path`, invalid Notion token), it should *force* the user to go through the `GtkConfigWizard` before allowing access to the main application window.
+    *   **Implementation:** This would involve:
+        *   Adding a `validate_config(config)` function.
+        *   In `gtk_ui.py`'s `do_activate` or similar startup method, call `load_config` and then `validate_config`.
+        *   If `validate_config` returns `False`, launch the `GtkConfigWizard` modally. Only proceed to show the main window if the wizard completes successfully.
+
+5.  **Step 4: Re-verify Wizard Button Logic (Post-Fix)**
+    *   **Problem:** The user reported the "Finish" button reappearing on the content page. My last fix attempted to address this by setting the `SchedulePage` to incomplete by default and completing it in `on_prepare`.
+    *   **Action:** After implementing the above steps, re-test the wizard's button flow thoroughly to ensure the "Next" and "Apply" buttons behave as expected and the "Finish" button does not appear prematurely.

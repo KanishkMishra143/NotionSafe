@@ -5,6 +5,7 @@ __pycache__/
 *.egg-info/
 venv/
 linux_venv/
+fedora_venv/
 .pytest_cache/
 # Scripts
 scripts/install_systemd.sh
