@@ -13,7 +13,7 @@ scripts/run_scheduler_service.py
 
 id_rsa_gfreak412
 id_rsa_gfreak412.pub
-CONTEXT.md
-GEMINI.md
+#CONTEXT.md
+#GEMINI.md
 # Env
 .env

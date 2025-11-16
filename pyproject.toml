@@ -19,6 +19,12 @@ classifiers = [
   "Operating System :: OS Independent",
 ]
 
+[project.scripts]
+notionsafe = "notebackup.__main__:main"
+
+[project.optional-dependencies]
+gtk = ["PyGObject"]
+
 [project.urls]
 Homepage = "https://github.com/KanishkMishra143/NotionSafe"
 "Bug Tracker" = "https://github.com/KanishkMishra143/NotionSafe/issues"

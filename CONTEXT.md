@@ -1,0 +1,4 @@
+- **Project:** NotionSafe
+- **Objective:** Complete the multi-phase refactoring of the application, culminating in the implementation of a GTK-based GUI for Linux (Phase 4).
+- **Current State:** All phases of the refactoring are complete. The application now has separate UIs for Windows (Qt) and Linux (GTK), both of which use a shared core logic and OS-specific scheduler backend. The GTK UI has been fully implemented, including the main window, logging, scheduler integration, and a complete configuration wizard. The main entry point now dispatches to the correct UI based on the operating system.
+- **Next Steps:** The primary development is finished. The user needs to test the new GTK application on a Linux environment. Future work will likely focus on packaging the application for distribution or general UI/UX polishing.
