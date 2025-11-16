@@ -130,3 +130,119 @@ python -m notebackup.cli
 ├── pyproject.toml
 └── requirements.txt
 ```
+
+---
+## Linux Development Guide (Fedora)
+
+This guide provides a comprehensive, step-by-step process for setting up a development environment for NotionSafe on a bare-metal Fedora installation. A bare-metal or full VM environment is required to properly test native Linux features like `systemd` timers.
+
+### Step 1: Update Your System
+Before installing new packages, it's always good practice to ensure your system is up-to-date.
+```bash
+sudo dnf update
+```
+
+### Step 2: Install Core Build Dependencies
+These packages are essential for compiling Python C-extensions that many libraries rely on.
+```bash
+sudo dnf install gcc python3-devel
+```
+-   `gcc`: The GNU Compiler Collection, used to compile C code.
+-   `python3-devel`: Includes the header files needed to build Python extensions.
+
+### Step 3: Install GUI Dependencies
+NotionSafe uses GTK4 for its user interface on Linux. These packages provide the necessary libraries and introspection data for the Python bindings.
+```bash
+sudo dnf install gtk4-devel gobject-introspection-devel cairo-gobject-devel
+```
+-   `gtk4-devel`: Development files for the GTK4 toolkit.
+-   `gobject-introspection-devel`: Allows Python to dynamically interact with C libraries (like GTK) through `PyGObject`.
+-   `cairo-gobject-devel`: Development files for Cairo, a 2D graphics library used by GTK.
+
+### Step 4: Install Backend Service Dependencies
+These packages support key backend features like secure credential storage and Git integration.
+```bash
+sudo dnf install libsecret-devel dotnet-runtime-6.0
+```
+-   `libsecret-devel`: Required by the `keyring` library to securely store the Notion API token in the GNOME Keyring or other system secret services.
+-   `dotnet-runtime-6.0`: A dependency for the recommended `git-credential-manager`.
+
+### Step 5: Clone the Application Repository
+Clone the source code from GitHub to your local machine.
+```bash
+git clone https://github.com/Gfreak412/notionsafe.git
+cd notionsafe
+```
+
+### Step 6: Set Up a Python Virtual Environment
+A virtual environment is a self-contained directory that holds a specific Python interpreter and its own set of installed packages. This is a critical best practice to avoid conflicts between projects.
+
+```bash
+# Create a directory named 'venv' for the environment
+python3 -m venv venv
+
+# Activate the environment. Your shell prompt should change to indicate it's active.
+source venv/bin/activate
+```
+To deactivate the environment later, simply run `deactivate`.
+
+### Step 7: Install Python Dependencies
+Install all the required Python libraries listed in the requirements file for Linux.
+```bash
+pip install -r requirements-linux.txt
+```
+**Verification:** You can run `pip list` to see all the packages that were installed into your virtual environment.
+
+### Step 8: Install NotionSafe in Editable Mode
+This is the final step to make the application runnable. Installing in "editable" mode (`-e`) means that the installation links directly to your source code. Any edits you make to the `.py` files are immediately effective when you run the application, with no need to re-install.
+
+```bash
+pip install -e .
+```
+This command reads the `pyproject.toml` file and creates a runnable command `notionsafe` in your virtual environment's `bin` directory.
+
+### Step 9: Configure Git Credentials (Recommended)
+For a seamless experience pushing to a remote Git repository (especially with 2FA), it is recommended to use Git Credential Manager (GCM). GCM securely stores your Personal Access Token (PAT) in the system keyring.
+
+```bash
+# Enable the third-party Copr repository for GCM
+sudo dnf copr enable matthickford/git-credential-manager
+
+# Install the package
+sudo dnf install git-credential-manager
+
+# Configure Git to use GCM as its credential helper
+git-credential-manager-core configure
+```
+The first time you `git push` to a private repository, you will be prompted for your username and password. Use your PAT as the password.
+
+### Step 10: Run and Test the Application
+
+#### Running the GUI
+With the virtual environment still active, you can now run the application using the command created in Step 8:
+```bash
+notionsafe
+```
+The GTK user interface should launch. The first time it runs, it will prompt you to go through the configuration wizard.
+
+#### Testing the Systemd Scheduler
+The primary reason for using a bare-metal Fedora install is to test the native scheduler.
+1.  Run the application (`notionsafe`) and complete the configuration wizard, ensuring you have a valid backup path.
+2.  Navigate to the **Scheduler** tab.
+3.  Click the **Enable Scheduled Backup** button. The application will create and install `systemd` timer and service files in `~/.config/systemd/user/`.
+4.  You can verify the status of the timer and service using the following commands:
+    ```bash
+    # Check the status of the timer
+    systemctl --user status notionsafe-backup.timer
+
+    # Check the status of the service it triggers
+    systemctl --user status notionsafe-backup.service
+
+    # List all user timers to see when it's scheduled to run next
+    systemctl --user list-timers
+    ```
+
+### Development FAQs
+
+#### Q: Why can't I test `systemd` timers or `cron` jobs in WSL?
+**A:** The Windows Subsystem for Linux (WSL), particularly WSL2, does not use a traditional Linux init system like `systemd`. Instead, it uses its own init process to manage the lifecycle of the Linux environment. `systemd` is the core service manager on modern Linux distributions like Fedora, responsible for running services, timers, and other background tasks. Since the `systemd` daemon is not running in WSL, you cannot create, enable, or test `systemd` timers. This makes a bare-metal Linux installation or a full virtual machine (like with VirtualBox or VMware) necessary for developing and testing features that rely on native system services.
