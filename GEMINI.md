@@ -184,6 +184,15 @@ This plan outlines the approved refactoring of the NotionSafe application to imp
         - Added `try...except keyring.errors.NoKeyringError` around `keyring.set_password` for graceful handling.
 - **Outcome:** The `KeyError` was expected to be resolved, and wizard button logic improved. However, the `KeyError` persists, indicating a deeper issue with config loading or validation in the main UI.
 
+### Session 17 (2025-11-17)
+- **Goal:** Diagnose and fix `systemd` timer creation issues and `ValueError` related to backup frequency.
+- **Accomplishments:**
+    - Diagnosed and fixed a `systemd` timer error (`Failed to parse calendar specification, ignoring: *-*->`) caused by shell globbing issues when generating the `OnCalendar` string in `notebackup/os_scheduler/linux.py`.
+    - Diagnosed and fixed a `TypeError: 'float' object cannot be interpreted as an integer` and a subsequent `ValueError: range() arg 3 must not be zero` in `notebackup/os_scheduler/linux.py`. These errors occurred when `interval_hours` was a float or zero, respectively.
+    - Removed a faulty validation check from `notebackup/ui/gtk_ui.py` that incorrectly defaulted sub-hour intervals to 24 hours.
+    - Implemented robust `OnCalendar` string generation logic in `notebackup/os_scheduler/linux.py` to correctly handle integer hours, sub-hour intervals (converted to minutes), and invalid inputs, ensuring proper `systemd` timer creation for all valid frequencies.
+- **Outcome:** The `systemd` scheduler now correctly creates timers for all valid backup frequencies, including sub-hour intervals, without errors.
+
 <!-- DO NOT DELETE: This section tracks critical Linux development and packaging tasks. -->
 # Linux Development and Packaging Plan
 
@@ -197,12 +206,14 @@ This plan outlines the next steps for completing the Linux version of NotionSafe
 ## Phase 2: Application Packaging
 *   **Goal:** Package the application for easy distribution on Windows and Linux. This phase will only begin after explicit instruction from the user.
 *   **Windows Packaging:**
-    *   **Method:** Use `PyInstaller` or create GitHub packages.
+    *   **Method:** Use `PyInstaller` to create `notionsafe.exe`.
+    *   **Release:** GitHub releases of `notionsafe.exe`.
     *   **Status:** Pending.
 *   **Linux Packaging:**
     *   **Method 1 (Standard):** Create a `tar.gz` archive for release on GitHub.
     *   **Method 2 (Distribution-specific):**
         *   Create a `COPR` package for Fedora/CentOS/RHEL.
         *   Create an `AUR` package for Arch Linux.
+    *   **WSL on Windows:** Ensure compatibility and provide instructions for running the Linux version via WSL.
     *   **Status:** Pending.
 

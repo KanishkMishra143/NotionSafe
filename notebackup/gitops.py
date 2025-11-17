@@ -38,8 +38,20 @@ def _get_repo(repo_path, remote_url, remote_name="origin"):
         log.info(f"Local git repo not found. Cloning from {remote_url} into {repo_path}.")
         os.makedirs(repo_path, exist_ok=True)
         try:
-            repo = git.Repo.clone_from(remote_url, repo_path)
-            log.info("Successfully cloned repository.")
+            # Clone to a temporary directory first
+            with tempfile.TemporaryDirectory() as temp_clone_path:
+                log.info(f"Cloning into temporary directory: {temp_clone_path}")
+                git.Repo.clone_from(remote_url, temp_clone_path)
+                
+                # Move the .git directory to the final destination
+                git_dir = os.path.join(temp_clone_path, ".git")
+                dest_git_dir = os.path.join(repo_path, ".git")
+                log.info(f"Moving .git directory to {dest_git_dir}")
+                shutil.move(git_dir, dest_git_dir)
+
+            # Now, open the repository from the correct path
+            repo = git.Repo(repo_path)
+            log.info("Successfully initialized repository from remote.")
         except git.exc.GitCommandError as e:
             if "empty repository" in str(e).lower():
                 log.warning(f"Cloning failed as remote is empty. Initializing a new repository at: {repo_path}")
@@ -205,8 +217,10 @@ def perform_git_backup(repo_path, snapshot_folder, remote_name, remote_url):
             log.error("Please verify your credentials (SSH key or Personal Access Token) and permissions for the repository.")
         else:
             log.error(f"An error occurred during Git operation: {e}", exc_info=True)
+        raise  # Re-raise the exception to propagate the failure
     except Exception as e:
         log.error(f"An unexpected error occurred during the Git backup: {e}", exc_info=True)
+        raise  # Re-raise the exception to propagate the failure
     finally:
         if repo:
             repo.close()

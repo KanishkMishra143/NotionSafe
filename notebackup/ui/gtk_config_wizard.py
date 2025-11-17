@@ -400,13 +400,15 @@ class GtkConfigWizard(Gtk.Assistant):
                     'remote_name': 'origin', # A reasonable default
                     'remote_url': storage_data['git_url']
                 },
-                'backup_frequency_hours': backup_frequency
             },
             'notion': {
                 'page_ids': self.content_page.get_selected_page_ids(),
                 'database_ids': self.content_page.get_selected_db_ids()
             }
         }
+
+        if backup_frequency is not None:
+            config['storage']['backup_frequency_hours'] = backup_frequency
 
         # Save token and config
         try:

@@ -7,6 +7,7 @@ venv/
 linux_venv/
 fedora_venv/
 .pytest_cache/
+backup_runner.log
 # Scripts
 scripts/install_systemd.sh
 scripts/install_windows_task.py

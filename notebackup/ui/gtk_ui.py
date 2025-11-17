@@ -54,16 +54,42 @@ class MainWindow(Gtk.ApplicationWindow):
         self.set_default_size(800, 600)
         self.set_title("NotionSafe (GTK)")
 
-        # Define action for the menu item
-        action = Gio.SimpleAction.new("show_config_wizard", None)
-        action.connect("activate", self.show_config_wizard)
-        self.add_action(action)
+        # Define actions for menu items
+        config_action = Gio.SimpleAction.new("show_config_wizard", None)
+        config_action.connect("activate", self.show_config_wizard)
+        self.add_action(config_action)
 
-        self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
-        self.set_child(self.box)
+        about_action = Gio.SimpleAction.new("show_about", None)
+        about_action.connect("activate", self.show_about)
+        self.add_action(about_action)
 
+        # --- Header Bar and Menu Button ---
         header = Gtk.HeaderBar()
         self.set_titlebar(header)
+
+        # Build the menu model
+        menu = Gio.Menu.new()
+        # File Menu
+        file_menu = Gio.Menu.new()
+        file_menu.append("Quit", "app.quit")
+        menu.append_submenu("File", file_menu)
+        # Edit Menu
+        edit_menu = Gio.Menu.new()
+        edit_menu.append("Configuration", "win.show_config_wizard")
+        menu.append_submenu("Edit", edit_menu)
+        # Help Menu
+        help_menu = Gio.Menu.new()
+        help_menu.append("About", "win.show_about")
+        menu.append_submenu("Help", help_menu)
+
+        menu_button = Gtk.MenuButton()
+        menu_button.set_icon_name("open-menu-symbolic")
+        menu_button.set_menu_model(menu)
+        header.pack_end(menu_button)
+
+        # --- Main Layout ---
+        self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        self.set_child(self.box)
 
         # --- Main UI Components ---
         self.notebook = Gtk.Notebook()
@@ -143,6 +169,18 @@ class MainWindow(Gtk.ApplicationWindow):
         wizard = GtkConfigWizard(transient_for=self, modal=True)
         wizard.present()
         wizard.connect("close", self.on_wizard_closed)
+
+    def show_about(self, action, param):
+        about = Adw.AboutWindow(
+            transient_for=self,
+            application_name="NotionSafe",
+            developer_name="Your Name",
+            version="1.0",
+            comments="A simple, secure, and reliable tool to back up your Notion workspace locally.",
+            website="https://github.com/Gfreak412/notionsafe",
+            application_icon="assets/logo.png" 
+        )
+        about.present()
 
     def on_wizard_closed(self, wizard):
         self.update_scheduler_status()
@@ -281,13 +319,7 @@ class GtkApp(Adw.Application):
         style_manager.set_color_scheme(Adw.ColorScheme.FORCE_DARK)
 
     def do_activate(self):
-        # Create the menu model
-        menu = Gio.Menu.new()
-        edit_menu = Gio.Menu.new()
-        edit_menu.append("Configuration", "win.show_config_wizard")
-        menu.append_submenu("Edit", edit_menu)
-        self.set_menubar(menu)
-
+        # --- Config Loading and Window Activation ---
         config_path = os.path.expanduser("~/.noteback/config.yaml")
         config = None
         needs_config = True
@@ -310,6 +342,8 @@ class GtkApp(Adw.Application):
             GLib.idle_add(self.win.show_config_wizard, None, None)
         else:
             self.show_main_window()
+            if self.win:
+                self.win.run_button.set_sensitive(True)
 
     def show_main_window(self):
         self.win = MainWindow(application=self)
