@@ -21,46 +21,76 @@ This project, **NotionSafe**, is a Python-based application for creating secure,
 
 **Key Technologies:**
 - **Language:** Python 3.10+
-- **GUI:** PySide6
+- **GUI:** PySide6 (Windows), PyGObject/GTK4 (Linux)
 - **Dependencies:** `PyYAML`, `keyring`, `GitPython`, `schedule`, `notion-client`
 
 ---
 
-## Current Status (as of 2025-11-11)
+## Current Status (as of 2025-11-18)
 
+- **GTK UI Complete:** The GTK4-based user interface for Linux is now fully implemented and functional, providing a native experience.
+- **Linux Scheduler Implemented:** The `systemd`-based scheduler for Linux is complete and correctly handles all backup frequencies, including sub-hour intervals.
+- **KeyError Fixed:** The persistent `KeyError: 'local_path'` in the GTK configuration wizard has been resolved.
 - **Cross-Platform Scheduled Task Management:** Implemented robust, OS-native scheduled task management for both Windows (schtasks) and Linux (systemd), ensuring silent and reliable automatic backups across platforms.
 - **Advanced Error Handling for Invalid Notion Token:** The GUI now intelligently detects invalid Notion API tokens during backup attempts and prompts the user to re-run the configuration wizard for correction.
 - **Silent Scheduled Tasks:** Successfully implemented and configured scheduled tasks to run completely silently without spawning a CMD window, resolving a persistent UI issue.
 - **Robust Error Handling:** Implemented robust error handling for the core backup process, preventing silent failures from the underlying exporter and ensuring graceful degradation.
 - **GitOps Hardened:** Systematically debugged and fixed a series of cascading bugs in the `gitops.py` module, resulting in a fully robust and functional Git backup feature.
 - **Comprehensive Test Suite:** Created and repaired a comprehensive test suite with 20 tests covering all core modules. This significantly improves project stability and maintainability.
-- **Backup End-to-End Success:** A full backup process, including Git remote push, completed successfully, confirming all recent bug fixes.
-- **Critical Bugs Fixed:** The `AttributeError` crashes in the Configuration Wizard and GUI Log Viewer have been resolved.
-- **Markdown Post-Processing:** A robust script (`post_process.py`) is in place to fix `notion2md` output.
-- **GUI Implemented:** The application has a functional GUI.
-- **GUI Configuration Wizard:** The configuration wizard is implemented and functional.
-- **Centralized Logging:** A centralized logging system is fully implemented and integrated.
 
 ### Module Implementation Status
 
 | Module | Status | Notes |
 | :--- | :--- | :--- |
 | `auth.py` | **Implemented** | Handles Notion token retrieval. |
-| `cli.py` | **Implemented** | Core backup logic. Now with robust error checking on exporter and `InvalidNotionTokenError` handling. |
-| `config_wizard.py` | **Implemented** | GUI wizard is now functional. |
-| `exporter.py` | **Implemented** | Core exporting logic. Now with enhanced error logging. |
+| `cli.py` | **Implemented** | Core backup logic with robust error handling. |
+| `core.py` | **Implemented** | UI-agnostic core backup worker and logic. |
+| `exporter.py` | **Implemented** | Core exporting logic with enhanced error logging. |
 | `fs_layout.py`| **Implemented** | Handles snapshot directory creation and `latest.txt` marker. |
 | `gitops.py` | **Implemented and hardened** | Fully integrated and robust Git backup logic. |
-| `gui.py` | **Implemented** | Main GUI application is now functional, with `InvalidNotionTokenError` handling. |
-| `logger.py` | **Implemented** | Centralized logging configuration improved for background tasks. |
+| `logger.py` | **Implemented** | Centralized logging configuration. |
 | `notion_api.py`| **Implemented** | Basic wrapper for the Notion API. |
-| `scheduler.py`| **Implemented** | Cross-platform, in-process scheduler. Not yet integrated with GUI. |
 | `storage.py` | **Implemented** | Handles external drive copy logic. |
-| `task_scheduler.py`| **Implemented** | Manages OS-native scheduled tasks, now with silent execution and Linux systemd support. |
+| `os_scheduler/`| **Implemented** | Manages OS-native scheduled tasks (Windows & Linux). |
+| `ui/` | **Implemented** | Contains UI implementations: `qt_ui` (Windows) and `gtk_ui` (Linux). |
 
 ---
 
 ## Session Log
+
+### Session 18 (2025-11-18)
+- **Goal:** Finalize Linux implementation and update documentation.
+- **Accomplishments:**
+    - Confirmed that the `KeyError: 'local_path'` in the GTK configuration wizard is fully resolved.
+    - Confirmed that the GTK user interface and the `systemd`-based scheduler for Linux are complete and functioning as expected.
+    - Updated `GEMINI.md` and `README.md` to reflect the completed Linux implementation, the new project structure, and the latest features.
+- **Outcome:** The application now has functional, native user interfaces for both Windows (Qt) and Linux (GTK). All major development goals for the Linux version are complete. The project is ready for packaging and distribution.
+
+### Session 17 (2025-11-17)
+- **Goal:** Diagnose and fix `systemd` timer creation issues and `ValueError` related to backup frequency.
+- **Accomplishments:**
+    - Diagnosed and fixed a `systemd` timer error (`Failed to parse calendar specification, ignoring: *-*->`) caused by shell globbing issues when generating the `OnCalendar` string in `notebackup/os_scheduler/linux.py`.
+    - Diagnosed and fixed a `TypeError: 'float' object cannot be interpreted as an integer` and a subsequent `ValueError: range() arg 3 must not be zero` in `notebackup/os_scheduler/linux.py`. These errors occurred when `interval_hours` was a float or zero, respectively.
+    - Removed a faulty validation check from `notebackup/ui/gtk_ui.py` that incorrectly defaulted sub-hour intervals to 24 hours.
+    - Implemented robust `OnCalendar` string generation logic in `notebackup/os_scheduler/linux.py` to correctly handle integer hours, sub-hour intervals (converted to minutes), and invalid inputs, ensuring proper `systemd` timer creation for all valid frequencies.
+- **Outcome:** The `systemd` scheduler now correctly creates timers for all valid backup frequencies, including sub-hour intervals, without errors.
+
+### Session 16 (2025-11-16)
+
+- **Goal:** Fix `KeyError: 'local_path'` and wizard button logic in GTK UI.
+- **Accomplishments:**
+    - Added `try...except keyring.errors.NoKeyringError` to `NotionApiPage.prepare` in `notebackup/ui/gtk_config_wizard.py` to handle missing keyring backend gracefully.
+    - Modified `GtkConfigWizard.add_pages` in `notebackup/ui/gtk_config_wizard.py` to:
+        - Make `summary_box` a class member `self.summary_page`.
+        - Set `self.summary_page` to `False` (incomplete) by default.
+        - Set `self.schedule_page` to `False` (incomplete) by default.
+    - Modified `GtkConfigWizard.on_prepare` in `notebackup/ui/gtk_config_wizard.py` to:
+        - Set `self.schedule_page` to `True` (complete) when it is prepared.
+        - Validate API token before setting `self.summary_page` to `True` (complete).
+    - Modified `GtkConfigWizard.on_apply` in `notebackup/ui/gtk_config_wizard.py` to:
+        - Corrected the key name from `'backup_path'` to `'local_path'` in the `config['storage']` dictionary.
+        - Added `try...except keyring.errors.NoKeyringError` around `keyring.set_password` for graceful handling.
+- **Outcome:** The `KeyError` was expected to be resolved, and wizard button logic improved. However, the `KeyError` persists, indicating a deeper issue with config loading or validation in the main UI.
 
 ### Session 15 (2025-11-11)
 - **Goal:** Implement cross-platform scheduled task management for Linux using `systemd` timers.
