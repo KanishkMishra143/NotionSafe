@@ -8,7 +8,7 @@ import tempfile
 import argparse
 from PySide6.QtCore import Signal, QObject, Qt, QThread, QTimer
 from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton, QTextEdit, QVBoxLayout, QWidget, QProgressBar, QLabel, QFrame, QHBoxLayout, QMessageBox, QWizard, QStyle, QTabWidget
-from PySide6.QtGui import QAction, QColor, QTextCursor, QIcon
+from PySide6.QtGui import QAction, QColor, QTextCursor, QIcon, QPalette
 
 from .. import cli
 from .qt_config_wizard import ConfigWizard
@@ -412,6 +412,23 @@ def main():
 
     # Standard GUI application startup
     app = QApplication(sys.argv)
+    app.setStyle("Fusion")
+    palette = QPalette()
+
+    palette.setColor(QPalette.Window, QColor(53, 53, 53))
+    palette.setColor(QPalette.WindowText, QColor(255, 255, 255))
+    palette.setColor(QPalette.Base, QColor(35, 35, 35))
+    palette.setColor(QPalette.AlternateBase, QColor(53, 53, 53))
+    palette.setColor(QPalette.ToolTipBase, QColor(255, 255, 255))
+    palette.setColor(QPalette.ToolTipText, QColor(255, 255, 255))
+    palette.setColor(QPalette.Text, QColor(255, 255, 255))
+    palette.setColor(QPalette.Button, QColor(53, 53, 53))
+    palette.setColor(QPalette.ButtonText, QColor(255, 255, 255))
+    palette.setColor(QPalette.Highlight, QColor(42, 130, 218))
+    palette.setColor(QPalette.HighlightedText, QColor(0, 0, 0))
+
+    app.setPalette(palette)
+
 
     config_path = os.path.expanduser("~/.noteback/config.yaml")
     if not os.path.exists(config_path):
