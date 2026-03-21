@@ -19,7 +19,7 @@ echo  Zipping the output...
 if exist "dist\NotionSafe-Windows.zip" del "dist\NotionSafe-Windows.zip"
 
 :: Use powershell to zip the folder cleanly
-powershell -Command "Compress-Archive -Path 'dist\NotionSafe' -DestinationPath 'dist\NotionSafe-Windows.zip' -Force"
+powershell -Command "Compress-Archive -Path 'dist\NotionSafe' -DestinationPath 'release\NotionSafe-Windows.zip' -Force"
 
 if %errorlevel% neq 0 (
     echo Zipping failed!
@@ -27,6 +27,6 @@ if %errorlevel% neq 0 (
 )
 
 echo.
-echo Packaging complete. The zipped release is located at: dist\NotionSafe-Windows.zip
+echo --- Packaging complete. The zipped release is located at: release\NotionSafe-Windows.zip ---
 echo.
 endlocal
