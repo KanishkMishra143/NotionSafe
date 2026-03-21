@@ -29,4 +29,18 @@ if %errorlevel% neq 0 (
 echo.
 echo --- Packaging complete. The zipped release is located at: release\NotionSafe-Windows.zip ---
 echo.
+
+echo .
+echo --- Asking if I want to make a release or not ---
+echo .
+
+set /p choice="Do you want to upload to GitHub now? (y/n): "
+if /i "%choice%"=="y" (
+    set /p tag="Enter version tag (e.g. v1.0.0): "
+    gh release create %tag% .\release\NotionSafe-Windows.zip --generate-notes --latest
+)
+
+echo .
+echo --- We are done ---
+echo .
 endlocal
