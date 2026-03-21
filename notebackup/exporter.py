@@ -4,6 +4,7 @@ import importlib
 import pkgutil
 import subprocess
 import sys
+import os
 from typing import Callable, Any
 
 CANDIDATE_NAMES = ["export_cli", "export", "main", "run", "cli", "exporter"]
@@ -52,8 +53,19 @@ def _find_export_callable() -> Callable[..., Any] | None:
 def _find_main_callable() -> Callable[..., Any] | None:
     # Try notion2md.__main__.main
     try:
+        # We use import_module here because PyInstaller's hidden imports 
+        # will make this available in the frozen bundle.
         main_mod = importlib.import_module("notion2md.__main__")
         if hasattr(main_mod, "main") and callable(getattr(main_mod, "main")):
+            return getattr(main_mod, "main")
+    except Exception:
+        pass
+    
+    # Second attempt: try to get it from sys.modules if it was imported elsewhere
+    try:
+        import notion2md.__main__
+        main_mod = sys.modules.get("notion2md.__main__")
+        if main_mod and hasattr(main_mod, "main") and callable(getattr(main_mod, "main")):
             return getattr(main_mod, "main")
     except Exception:
         pass
@@ -63,6 +75,23 @@ def _find_main_callable() -> Callable[..., Any] | None:
 def _subprocess_runner(argv):
     """Run `python -m notion2md` with argv list; return exit code or raise subprocess.CalledProcessError."""
     from .logger import log
+    
+    # If frozen (EXE), sys.executable is the EXE itself. 
+    # Calling sys.executable -m notion2md will NOT work.
+    if getattr(sys, 'frozen', False):
+        # We MUST use the in-process main if frozen
+        if _main_callable:
+            log.info("Running notion2md in-process (frozen environment)")
+            try:
+                # notion2md's main expects argv style list
+                return _main_callable(argv)
+            except Exception as e:
+                log.error(f"In-process notion2md failed: {e}")
+                return 1
+        else:
+            log.error("Cannot run notion2md: App is frozen and notion2md.main was not found.")
+            return 1
+
     cmd = [sys.executable, "-m", "notion2md"] + list(argv)
     completed = subprocess.run(cmd, check=False, capture_output=True, text=True)
     if completed.returncode != 0:
@@ -85,6 +114,22 @@ def _export_cli_passthrough(*args, **kwargs):
     """
     if _export_callable is not None:
         return _export_callable(*args, **kwargs)
+    
+    # If frozen, we prefer _main_callable directly to avoid subprocess issues
+    if getattr(sys, 'frozen', False) and _main_callable is not None:
+        argv = []
+        for a in args:
+            if isinstance(a, (list, tuple)):
+                argv.extend(map(str, a))
+            else:
+                argv.append(str(a))
+        argv.append("--download")
+        try:
+            return _main_callable(argv)
+        except Exception:
+             # Fallback to standard logic if something goes wrong
+             pass
+
     if _main_callable is not None:
         # try to call main. If args is empty, call without arguments.
         try:
@@ -98,6 +143,7 @@ def _export_cli_passthrough(*args, **kwargs):
                 else:
                     argv.append(str(a))
             return _main_callable(argv)
+    
     # final fallback: run module as subprocess. Convert args into argv list.
     argv = []
     for a in args:

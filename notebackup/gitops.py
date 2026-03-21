@@ -2,7 +2,40 @@ import git
 import os
 import shutil
 import tempfile
+import contextlib
+import stat
 from .logger import log
+
+def _on_rm_error(func, path, exc_info):
+    """
+    Error handler for shutil.rmtree to handle read-only files on Windows.
+    """
+    # Clear the read-only bit and retry
+    try:
+        os.chmod(path, stat.S_IWRITE)
+        func(path)
+    except Exception:
+        # Ignore errors here to allow cleanup to continue
+        pass
+
+@contextlib.contextmanager
+def _git_ssh_no_verify():
+    """
+    Context manager to temporarily set GIT_SSH_COMMAND to bypass SSH host key verification.
+    This helps avoid 'Host key verification failed' errors when using SSH aliases.
+    """
+    old_ssh_command = os.environ.get('GIT_SSH_COMMAND')
+    # -o StrictHostKeyChecking=no: Don't check the host key against known_hosts
+    # -o UserKnownHostsFile=/dev/null: Don't write the host key to known_hosts
+    os.environ['GIT_SSH_COMMAND'] = 'ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+    try:
+        yield
+    finally:
+        if old_ssh_command is None:
+            if 'GIT_SSH_COMMAND' in os.environ:
+                del os.environ['GIT_SSH_COMMAND']
+        else:
+            os.environ['GIT_SSH_COMMAND'] = old_ssh_command
 
 # =====================================================================================
 # NON-DESTRUCTIVE PHILOSOPHY
@@ -38,15 +71,22 @@ def _get_repo(repo_path, remote_url, remote_name="origin"):
         log.info(f"Local git repo not found. Cloning from {remote_url} into {repo_path}.")
         os.makedirs(repo_path, exist_ok=True)
         try:
-            # Clone to a temporary directory first
-            with tempfile.TemporaryDirectory() as temp_clone_path:
-                log.info(f"Cloning into temporary directory: {temp_clone_path}")
+            # Create a temp directory ON THE SAME DRIVE as repo_path to avoid cross-drive move errors (WinError 17)
+            # We use the parent directory of repo_path as the base for the temp dir.
+            base_temp_dir = os.path.dirname(os.path.abspath(repo_path))
+            with tempfile.TemporaryDirectory(dir=base_temp_dir, prefix="git_clone_tmp_") as temp_clone_path:
+                log.info(f"Cloning into temporary directory on same drive: {temp_clone_path}")
                 git.Repo.clone_from(remote_url, temp_clone_path)
                 
                 # Move the .git directory to the final destination
                 git_dir = os.path.join(temp_clone_path, ".git")
                 dest_git_dir = os.path.join(repo_path, ".git")
                 log.info(f"Moving .git directory to {dest_git_dir}")
+                
+                # If destination .git already exists for some reason, remove it
+                if os.path.exists(dest_git_dir):
+                    shutil.rmtree(dest_git_dir, onexc=_on_rm_error)
+                
                 shutil.move(git_dir, dest_git_dir)
 
             # Now, open the repository from the correct path
@@ -192,20 +232,21 @@ def perform_git_backup(repo_path, snapshot_folder, remote_name, remote_url):
         repo_path = os.path.normpath(repo_path)
         snapshot_folder = os.path.normpath(snapshot_folder)
 
-        with tempfile.TemporaryDirectory() as temp_dir:
-            # Move the new snapshot to a safe temporary location
-            temp_snapshot_path = os.path.join(temp_dir, os.path.basename(snapshot_folder))
-            log.info(f"Temporarily moving snapshot to {temp_snapshot_path}")
-            shutil.move(snapshot_folder, temp_snapshot_path)
+        with _git_ssh_no_verify():
+            with tempfile.TemporaryDirectory() as temp_dir:
+                # Move the new snapshot to a safe temporary location
+                temp_snapshot_path = os.path.join(temp_dir, os.path.basename(snapshot_folder))
+                log.info(f"Temporarily moving snapshot to {temp_snapshot_path}")
+                shutil.move(snapshot_folder, temp_snapshot_path)
 
-            # Now the git working directory is clean.
-            repo = _get_repo(repo_path, remote_url, remote_name)
+                # Now the git working directory is clean.
+                repo = _get_repo(repo_path, remote_url, remote_name)
 
-            # --- History Branch ---
-            _handle_history_branch(repo, temp_snapshot_path, remote_name)
+                # --- History Branch ---
+                _handle_history_branch(repo, temp_snapshot_path, remote_name)
 
-            # --- Master Branch ---
-            _handle_master_branch(repo, temp_snapshot_path, remote_name)
+                # --- Master Branch ---
+                _handle_master_branch(repo, temp_snapshot_path, remote_name)
 
         log.info("Git backup process completed successfully.")
 

@@ -101,11 +101,21 @@ def is_admin():
     except:
         return False
 
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("NotionSafe")
-        self.setWindowIcon(QIcon('assets/logo.png'))
+        self.setWindowIcon(QIcon(resource_path('assets/logo.png')))
         self.setGeometry(100, 100, 800, 600)
 
         # --- Menu Bar ---
@@ -426,7 +436,9 @@ def main():
     palette.setColor(QPalette.ButtonText, QColor(255, 255, 255))
     palette.setColor(QPalette.Highlight, QColor(42, 130, 218))
     palette.setColor(QPalette.HighlightedText, QColor(0, 0, 0))
-
+    palette.setColor(QPalette.Link, QColor(0, 102, 204))
+    palette.setColor(QPalette.LinkVisited, QColor(0, 80, 160))
+    
     app.setPalette(palette)
 
 

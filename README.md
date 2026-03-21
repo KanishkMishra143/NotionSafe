@@ -54,7 +54,12 @@ Once installed, you can run the application from your terminal using the `notion
 
 ```bash
 notionsafe
+# If you are testing on WSL
+GSK_RENDERER=cairo notionsafe
+
 ```
+
+
 
 The application will automatically detect your operating system and launch the appropriate GUI (Qt on Windows, GTK on Linux).
 

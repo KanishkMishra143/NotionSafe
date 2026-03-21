@@ -14,12 +14,57 @@ class ConfigWizard(QWizard):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("NotionSafe Configuration Wizard")
+        
+        self.setStyleSheet("""
+        QWizard, QWizardPage {
+            background-color: white;
+        }
+
+        QLabel, QCheckBox {
+            color: black;
+        }
+
+        QCheckBox::indicator {
+            width: 18px;
+            height: 18px;
+            border: 1px solid #767676;
+            border-radius: 3px;
+            background-color: white;
+        }
+
+        QCheckBox::indicator:checked {
+            background-color: #0066cc;
+            border: 1px solid #004a99;
+            /* Embedded SVG for a high-quality checkmark */
+            image: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'><polyline points='20 6 9 17 4 12'></polyline></svg>");
+        }
+
+        QCheckBox::indicator:unchecked:hover {
+            background-color: #f0f0f0;
+            border: 1px solid #0066cc;
+        }
+        
+        /* Force checkbox text to be visible */
+        QCheckBox {
+            spacing: 8px;
+        }
+
+        QLabel a {
+            color: #0066cc;
+            text-decoration: underline;
+        }
+
+        QLabel a:hover {
+            color: #004999;
+        }
+        """)
         self.addPage(WelcomePage())
         self.addPage(StoragePage())
         self.addPage(NotionApiPage())
         self.addPage(NotionContentPage())
         self.addPage(SchedulePage())
-        self.addPage(SummaryPage())
+        self.summary_page = SummaryPage()
+        self.addPage(self.summary_page)
 
     def accept(self):
         """Called when the user clicks Finish. Gathers all data and saves the config."""
@@ -136,7 +181,6 @@ class NotionApiPage(QWizardPage): # Page 2
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setTitle("Notion Integration")
-
         layout = QVBoxLayout(self)
         self.setLayout(layout)
 
@@ -149,8 +193,13 @@ class NotionApiPage(QWizardPage): # Page 2
         )
         label.setOpenExternalLinks(True)
         label.setAlignment(Qt.AlignLeft)
-        
-        helper = QLabel("Copy the 'Internal Integration Token' after creating an integration.")
+        label.setStyleSheet("""
+        a {
+            color: #0066cc;
+            text-decoration: underline;
+        }
+        """)
+        helper = QLabel("Tip: Copy the 'Internal Integration Token' after creating an integration.")
         
         layout.addWidget(label)
         layout.addWidget(helper)

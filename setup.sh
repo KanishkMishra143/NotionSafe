@@ -26,22 +26,36 @@ install_packages_debian() {
 
 install_packages_fedora() {
     print_step "Installing packages for Fedora/RHEL..."
-    sudo dnf install -y git git-lfs rsync python3 python3-devel gcc-c++ openssl-devel libffi-devel
+    sudo dnf install -y git git-lfs rsync python3 python3-pip python3-devel gcc-c++ openssl-devel libffi-devel \
+    python3-gobject \
+    gobject-introspection \
+    gobject-introspection-devel \
+    gtk3 \
+    gtk3-devel \
+    gtk4 \
+    gtk4-devel \
+    cairo \
+    cairo-devel \
+    gcc \
+    gnome-keyring \
+    make
 }
 
 setup_python_venv() {
     print_step "Setting up Python virtual environment..."
-    if [ ! -d "venv" ]; then
-        python3 -m venv venv
-        echo "Created Python virtual environment in 'venv/'."
+    if [ ! -d "linux_venv" ]; then
+        python3 -m venv linux_venv --system-site-packages
+        echo "Created Python virtual environment in 'linux_venv/'."
     else
-        echo "Virtual environment 'venv/' already exists."
+        echo "Virtual environment 'linux_venv/' already exists."
     fi
     
-    source venv/bin/activate
+    source linux_venv/bin/activate
     pip install --upgrade pip
-    pip install -r requirements.txt
+    pip install -r requirements-linux.txt
     echo "Python dependencies installed."
+    pip install -e .
+    echo "Notionsafe is installed and ready to use."
 }
 
 init_git() {
@@ -79,8 +93,9 @@ run_bootstrap() {
     fi
 
     # Run the backup script
-    source venv/bin/activate
-    python scripts/backup_runner.py
+    source linux_venv/bin/activate
+    notionsafe
+    # python scripts/backup_runner.py
 }
 
 print_final_checklist() {
@@ -92,11 +107,11 @@ print_final_checklist() {
     echo "       nano ~/.noteback/config.yaml"
     echo "4.  ✅ Configure your Git remote URL in the config file."
     echo "5.  ✅ Run a test backup:"
-    echo "       source venv/bin/activate && python scripts/backup_runner.py"
+    echo "       source linux_venv/bin/activate && python scripts/backup_runner.py"
     echo "6.  ✅ (Optional) Install the systemd timer for automatic backups:"
-    echo "       source venv/bin/activate && python scripts/backup_runner.py --install-timer"
+    echo "       source linux_venv/bin/activate && python scripts/backup_runner.py --install-timer"
     echo "7.  ✅ (Optional) Or, get instructions for a cron job:"
-    echo "       source venv/bin/activate && python scripts/backup_runner.py --cron-job"
+    echo "       source linux_venv/bin/activate && python scripts/backup_runner.py --cron-job"
 }
 
 # --- Main Execution ---
