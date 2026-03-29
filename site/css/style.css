@@ -142,10 +142,12 @@ header {
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--outline-variant);
 }
 
 .dark-theme header {
-  background-color: rgba(14, 16, 17, 0.85);
+  background-color: rgba(14, 16, 17, 0.9);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 nav {
@@ -317,7 +319,7 @@ nav {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary), var(--primary-container));
+  background-color: var(--primary);
   color: var(--on-primary);
   box-shadow: 0 4px 12px var(--shadow-tint);
 }
@@ -687,6 +689,10 @@ footer {
 @media (max-width: 768px) {
     :root {
         --space-8: 3rem;
+    }
+
+    .container {
+        padding: 0 var(--space-5);
     }
 
     h1 { font-size: 2rem; }
