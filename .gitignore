@@ -1,21 +1,34 @@
-# Windows
 __pycache__/
 *.py[cod]
 *$py.class
-*.egg-info/
+
+# Virtual environments
 venv/
+.venv/
 linux_venv/
 fedora_venv/
-.pytest_cache/
-backup_runner.log
-# Scripts
-scripts/install_systemd.sh
-scripts/install_windows_task.py
-scripts/run_scheduler_service.py
 
-id_rsa_gfreak412
-id_rsa_gfreak412.pub
-#CONTEXT.md
-#GEMINI.md
-# Env
+# Build and packaging artifacts
+*.egg-info/
+build/
+dist/
+*.tar.gz
+pip-wheel-metadata/
+
+# Tool and test caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Logs
+*.log
+backup_runner.log
+
+# Local secrets and machine-local config
 .env
+.env.*
+notebackup/.env
+id_rsa*
+
+# Packaging workspace-local state
+packaging/aur/notionsafe/.git/

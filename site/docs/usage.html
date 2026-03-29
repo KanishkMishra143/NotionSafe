@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usage | NotionSafe Docs</title>
+    <link rel="icon" type="image/png" href="../assets/logo_round.png" class="favicon">
+    <script>
+      (function() {
+        const theme = localStorage.getItem('theme') || 'light';
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark-theme');
+        }
+      })();
+    </script>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <a href="../index.html" class="logo">
+                    <span>NotionSafe</span>
+                </a>
+                <ul class="nav-links">
+                    <li><a href="../index.html">Home</a></li>
+                    <li><a href="getting-started.html">Docs</a></li>
+                    <li><a href="https://github.com/kanishkmishra/notionsafe">GitHub</a></li>
+                </ul>
+                <div style="display: flex; align-items: center; gap: var(--space-3);">
+                    <div id="search-btn" class="search-trigger">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        <span>Search docs...</span>
+                    </div>
+                    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Theme">
+                        <!-- Icon will be inserted by JS -->
+                    </button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div id="search-modal" class="search-modal">
+        <div class="search-modal-content">
+            <div class="search-modal-header">
+                <svg class="search-icon" style="position: static; transform: none; width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <input type="text" id="global-search" class="search-modal-input" placeholder="Search NotionSafe documentation...">
+            </div>
+            <div id="global-search-results" class="search-modal-results"></div>
+        </div>
+    </div>
+
+    <main class="container" style="padding: var(--space-8) 0;">
+        <div class="docs-container">
+            <aside class="docs-sidebar">
+                <span class="label-md" style="padding-left: var(--space-3);">Guide</span>
+                <ul>
+                    <li><a href="getting-started.html">Getting Started</a></li>
+                    <li><a href="installation.html">Installation</a></li>
+                    <li><a href="usage.html" class="active">Usage</a></li>
+                    <li><a href="configuration.html">Configuration</a></li>
+                    <li><a href="faq.html">FAQ</a></li>
+                </ul>
+            </aside>
+
+            <article class="docs-content">
+                <span class="label-md">Documentation</span>
+                <h1>Usage</h1>
+                <p>Learn how to manage your manual and automatic backups efficiently with NotionSafe.</p>
+
+                <h2>Manual Backups</h2>
+                <p>If you want to trigger a backup immediately, click the "Start Backup" button on the main dashboard. This is useful when you've just finished a large project in Notion and want to capture its state right away.</p>
+                <div class="halo-effect">
+                    <img src="../assets/linux_gui.png" alt="Manual Backup Button" style="width: 100%; border-radius: 1rem; margin-bottom: var(--space-5);">
+                </div>
+
+                <h2>Automatic Backups (Scheduled)</h2>
+                <p>Automatic backups are the core feature of NotionSafe. Based on the frequency you chose in the Configuration Wizard, the app will run silently in the background.</p>
+                
+                <h3>Windows (Task Scheduler)</h3>
+                <p>On Windows, NotionSafe creates a native Task Scheduler task. This task runs even if the app's main GUI is closed. You can verify it by opening <b>Task Scheduler</b> and looking for the "NotionSafe Backup" task.</p>
+                
+                <h3>Linux (systemd)</h3>
+                <p>On Linux, NotionSafe uses <code>systemd</code> user timers. These are highly efficient and run under your user context without requiring root privileges.</p>
+                <ul>
+                    <li>Check timer status: <code>systemctl --user list-timers</code></li>
+                    <li>Check service logs: <code>journalctl --user -u notionsafe-backup.service</code></li>
+                </ul>
+
+                <h2>Checking Backup Logs</h2>
+                <p>The "Logs" tab in the main interface shows the history of your recent backups. If a backup fails (e.g., due to an internet outage), you'll see a clear error message here.</p>
+                <div class="halo-effect">
+                    <img src="../assets/linux_scheduler_enabled.png" alt="Logs and Scheduler" style="width: 100%; border-radius: 1rem; margin-bottom: var(--space-5);">
+                </div>
+
+                <div class="card" style="margin-top: var(--space-8);">
+                    <h3>Where are my files?</h3>
+                    <p>By default, backups are saved in a subfolder named <code>snapshots/</code> within your backup path. Each backup is a timestamped folder containing <b>Markdown</b> files for pages and <b>CSV</b> files for databases.</p>
+                </div>
+            </article>
+
+            <aside class="docs-nav">
+                <span class="label-md">On this page</span>
+                <ul id="on-this-page">
+                    <!-- Dynamically populated -->
+                </ul>
+            </aside>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div style="margin-bottom: var(--space-4);">
+                <img src="../assets/logo.png" alt="NotionSafe Logo" style="height: 32px; opacity: 0.6; filter: grayscale(1);">
+            </div>
+            <p>&copy; 2026 NotionSafe. Built by Kanishk Mishra.</p>
+        </div>
+    </footer>
+
+    <script src="../js/main.js"></script>
+</body>
+</html>

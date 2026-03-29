@@ -57,7 +57,9 @@ def test_job_wrapper_success(scheduler_thread):
 
     scheduler_thread.job_wrapper()
 
-    scheduler_thread.job_func.assert_called_once_with(scheduler_thread.config_path)
+    scheduler_thread.job_func.assert_called_once_with(
+        scheduler_thread.config_path, progress_callback=scheduler_thread.progress
+    )
     mock_status_slot.assert_any_call("Backup job started...")
     mock_status_slot.assert_called_with("Backup job finished. Next run in 1 hours.")
 

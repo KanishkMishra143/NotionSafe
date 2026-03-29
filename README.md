@@ -28,7 +28,7 @@ NotionSafe is a cross-platform desktop application built with Python to create s
 Clone the repository and install the application.
 
 ```bash
-git clone https://github.com/Gfreak412/notionsafe.git
+git clone https://github.com/KanishkMishra143/NotionSafe.git
 cd notionsafe
 
 # Create and activate a virtual environment (recommended)
@@ -75,36 +75,41 @@ python -m notebackup.cli
 
 The project has been refactored to separate core logic from the UI and OS-specific components.
 
-```
+```text
 .
-├── notebackup/
-│   ├── __main__.py         # Main entry point, launches correct UI
-│   ├── cli.py              # Command-line interface logic
-│   ├── core.py             # Core backup worker logic (UI-agnostic)
-│   ├── auth.py
-│   ├── exporter.py
-│   ├── fs_layout.py
-│   ├── gitops.py
-│   ├── logger.py
-│   ├── notion_api.py
-│   ├── storage.py
-│   ├── os_scheduler/       # OS-native scheduling
-│   │   ├── linux.py
-│   │   └── windows.py
-│   └── ui/                 # UI implementations
-│       ├── qt_ui.py
-│       ├── qt_config_wizard.py
-│       ├── gtk_ui.py
-│       └── gtk_config_wizard.py
-├── tests/
-│   └── ... (tests for all modules)
-├── assets/
-│   └── logo.png
-├── .gitignore
+├── notebackup/                     # Application package
+│   ├── __main__.py                 # OS-aware GUI launcher entrypoint
+│   ├── core.py                     # UI-agnostic backup runner
+│   ├── cli.py                      # Backup orchestration logic
+│   ├── exporter.py                 # notion2md integration
+│   ├── os_scheduler/               # Windows + Linux scheduler backends
+│   └── ui/                         # Qt (Windows) and GTK (Linux) UIs
+├── tests/                          # Unit tests
+├── assets/                         # App icon/logo
+├── packaging/
+│   ├── common/notionsafe.desktop   # Shared Linux desktop entry
+│   ├── copr/notionsafe.spec        # Fedora/COPR spec
+│   └── aur/notionsafe/PKGBUILD     # Arch/AUR packaging files
 ├── pyproject.toml
-├── requirements.txt        # Windows requirements
-└── requirements-linux.txt  # Linux requirements
+├── requirements.txt
+└── requirements-linux.txt
 ```
+
+## Release Workflow
+
+1. Update version in `pyproject.toml`.
+2. Run tests locally (`pytest`).
+3. Build source archive (`git archive` or release tarball flow).
+4. Validate packaging files:
+   - `packaging/copr/notionsafe.spec`
+   - `packaging/aur/notionsafe/PKGBUILD`
+5. Create GitHub release and attach source tarball.
+6. Update checksums/version in AUR and rebuild COPR.
+
+## Known Issues
+
+- Windows `notionsafe` launcher can break if a virtualenv is moved across directories. Recreate the venv if you see a stale launcher path error.
+- PyInstaller backup execution path has had historical instability around `notion2md`; verify packaged manual backup before tagging a release.
 
 ---
 ## Linux Development Guide (Fedora)
@@ -140,13 +145,13 @@ pip install -e .
 ```
 
 ### Step 5: Run and Test
-You can now run the GTK application and test its functionality, including the `systemd` scheduler integration.
+You can now run the application and test its functionality, including the `systemd` scheduler integration.
 
 #### Running the GUI
 ```bash
-notionsafe
+python -m notebackup
 ```
-The GTK user interface should launch.
+The GTK or QT UI, based on your OS should launch.
 
 #### Testing the Systemd Scheduler
 1.  Run the application (`notionsafe`) and complete the configuration wizard.

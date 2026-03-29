@@ -17,6 +17,16 @@ from ..cli import InvalidNotionTokenError
 from ..os_scheduler import get_scheduler
 from .gtk_config_wizard import GtkConfigWizard
 
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
 class GtkLogHandler(logging.Handler):
     def __init__(self, text_buffer):
         super().__init__()
@@ -178,7 +188,7 @@ class MainWindow(Gtk.ApplicationWindow):
             version="1.0",
             comments="A simple, secure, and reliable tool to back up your Notion workspace locally.",
             website="https://github.com/Gfreak412/notionsafe",
-            application_icon="assets/logo.png" 
+            application_icon=resource_path("assets/logo.png")
         )
         about.present()
 

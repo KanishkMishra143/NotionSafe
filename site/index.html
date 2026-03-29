@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NotionSafe | Secure, Versioned Notion Backups</title>
+    <link rel="icon" type="image/png" href="assets/logo_round.png" class="favicon">
+    <script>
+      (function() {
+        const theme = localStorage.getItem('theme') || 'light';
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark-theme');
+        }
+      })();
+    </script>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+      @media (max-width: 768px) {
+        .hero-visual {
+          flex-direction: column;
+        }
+      }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <a href="#" class="logo">
+                    <span>NotionSafe</span>
+                </a>
+                <ul class="nav-links">
+                    <li><a href="#why">Why?</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#how">How it works</a></li>
+                    <li><a href="docs/getting-started.html">Docs</a></li>
+                </ul>
+                <div style="display: flex; align-items: center; gap: var(--space-3);">
+                    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Theme">
+                        <!-- Icon set by JS -->
+                    </button>
+                    <a href="https://github.com/KanishkMishra143/NotionSafe" class="btn btn-secondary">GitHub</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <span class="label-md">Own Your Data</span>
+                    <h1>Your Notion, Offline & Secure.</h1>
+                    <p>NotionSafe is a cross-platform desktop app that creates versioned local backups of your Notion workspaces. Simple, automatic, and secure.</p>
+                    <div style="display: flex; justify-content: center; gap: var(--space-3); margin-top: var(--space-4);">
+                        <a href="docs/getting-started.html" class="btn btn-primary">Get Started</a>
+                        <a href="https://github.com/KanishkMishra143/NotionSafe" class="btn btn-secondary">View Source</a>
+                    </div>
+                </div>
+                <div class="hero-visual" style="margin-top: 4rem; display: flex; gap: var(--space-5); background: none; box-shadow: none; overflow: visible; align-items: flex-start; justify-content: center;">
+                    <div class="halo-effect" style="flex: 1; max-width: 550px;">
+                        <img src="assets/windows_gui.png" alt="NotionSafe Windows Dashboard" style="width: 100%; height: auto; border-radius: 0.5rem; box-shadow: 0 20px 60px var(--shadow-tint); display: block;">
+                    </div>
+                    <div class="halo-effect" style="flex: 1; max-width: 550px;">
+                        <img src="assets/linux_gui.png" alt="NotionSafe Linux Dashboard" style="width: 100%; height: auto; border-radius: 1.25rem; box-shadow: 0 20px 60px var(--shadow-tint); display: block;">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="why" class="section-alt">
+            <div class="container">
+                <div style="text-align: center; max-width: 700px; margin: 0 auto var(--space-8);">
+                    <span class="label-md">The Problem</span>
+                    <h2>Cloud is not enough.</h2>
+                    <p>Notion is an incredible tool, but it's cloud-first. Without local backups, you risk losing access to your data when you're offline or if something goes wrong with the cloud.</p>
+                </div>
+                <div class="grid">
+                    <div class="card">
+                        <h3>Your notes are important.</h3>
+                        <p>Whether it's your personal journal or a business wiki, your data is valuable. NotionSafe treats it with the respect it deserves.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Offline access matters.</h3>
+                        <p>Keep a local copy of your entire workspace so you can search and reference your notes even without an internet connection.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Peace of mind.</h3>
+                        <p>Automatic, versioned backups mean you can always go back in time. No more "where did that page go?" moments.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="features">
+            <div class="container">
+                <div style="text-align: center; max-width: 700px; margin: 0 auto var(--space-8);">
+                    <span class="label-md">Features</span>
+                    <h2>Built for reliability.</h2>
+                </div>
+                <div class="grid">
+                    <div class="card">
+                        <span class="label-md">Scheduling</span>
+                        <h3>Automatic Backups</h3>
+                        <p>OS-native scheduled tasks (systemd on Linux, Task Scheduler on Windows) keep your backups running silently in the background.</p>
+                    </div>
+                    <div class="card">
+                        <span class="label-md">Security</span>
+                        <h3>Secure Token Storage</h3>
+                        <p>Uses your system's native keyring to store your Notion API tokens safely. No plain-text secrets.</p>
+                    </div>
+                    <div class="card">
+                        <span class="label-md">Versioning</span>
+                        <h3>Git Integration</h3>
+                        <p>Optional Git-based backup system provides a full history of your changes. See exactly what changed and when.</p>
+                    </div>
+                    <div class="card">
+                        <span class="label-md">Experience</span>
+                        <h3>Config Wizard</h3>
+                        <p>A simple, step-by-step setup process helps you connect Notion and choose your backup preferences in minutes.</p>
+                    </div>
+                    <div class="card">
+                        <span class="label-md">Cross-Platform</span>
+                        <h3>Windows & Linux</h3>
+                        <p>Native look and feel on both operating systems, using PySide6 for Windows and GTK4 for Linux.</p>
+                    </div>
+                    <div class="card">
+                        <span class="label-md">Developer-Friendly</span>
+                        <h3>Open Source</h3>
+                        <p>Transparent code, no telemetry, and full control over your data. Just how a developer tool should be.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="how" class="section-alt">
+            <div class="container">
+                <div style="text-align: center; max-width: 700px; margin: 0 auto var(--space-8);">
+                    <span class="label-md">How it works</span>
+                    <h2>Setup in three simple steps.</h2>
+                </div>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-content">
+                            <h3>1. Connect Notion</h3>
+                            <p>Enter your Notion API token. NotionSafe verifies it instantly and stores it securely in your system's keyring.</p>
+                        </div>
+                        <div class="step-image halo-effect">
+                            <img src="assets/linux_config_wizard_notion_token_input.png" alt="Connect Notion">
+                        </div>
+                    </div>
+                    <div class="step" style="direction: rtl;">
+                        <div class="step-content" style="direction: ltr;">
+                            <h3>2. Choose Your Content</h3>
+                            <p>Select which pages or databases you want to backup, or just backup your entire workspace.</p>
+                        </div>
+                        <div class="step-image halo-effect" style="direction: ltr;">
+                            <img src="assets/linux_config_wizard_notion_content_selection.png" alt="Select Content">
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-content">
+                            <h3>3. Set and Forget</h3>
+                            <p>Choose your backup frequency and destination. NotionSafe handles the rest, running silently in the background.</p>
+                        </div>
+                        <div class="step-image halo-effect">
+                            <img src="assets/linux_config_wizard_backup_frequency.png" alt="Set Schedule">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="creator">
+            <div class="container">
+                <div class="creator">
+                    <div class="creator-img">
+                        <img src="assets/profile.png" alt="Kanishk Mishra">
+                    </div>
+                    <div>
+                        <span class="label-md">Human Touch</span>
+                        <h3>Built by a developer who cares about your data.</h3>
+                        <p>"I built NotionSafe because I needed a reliable way to own my notes. It's open-source, private, and built to last."</p>
+                        <div style="display: flex; gap: var(--space-3);">
+                            <a href="https://github.com/KanishkMishra143" class="btn btn-secondary">GitHub</a>
+                            <a href="https://www.linkedin.com/in/kanishk-kumar-83603b194/" class="btn btn-secondary">LinkedIn</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div style="margin-bottom: var(--space-4);">
+                <img src="assets/logo.png" id="footer-logo" alt="NotionSafe Logo" style="height: 48px; opacity: 0.6; filter: grayscale(1);">
+            </div>
+            <div class="footer-links">
+                <a href="docs/getting-started.html">Documentation</a>
+                <a href="https://github.com/KanishkMishra143/NotionSafe">GitHub</a>
+                <a href="https://github.com/KanishkMishra143/NotionSafe/blob/main/LICENSE">License</a>
+            </div>
+            <p>&copy; 2026 NotionSafe. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

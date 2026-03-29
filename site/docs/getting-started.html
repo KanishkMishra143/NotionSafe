@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Getting Started | NotionSafe Docs</title>
+    <link rel="icon" type="image/png" href="../assets/logo_round.png" class="favicon">
+    <script>
+      (function() {
+        const theme = localStorage.getItem('theme') || 'light';
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark-theme');
+        }
+      })();
+    </script>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <a href="../index.html" class="logo">
+                    <span>NotionSafe</span>
+                </a>
+                <ul class="nav-links">
+                    <li><a href="../index.html">Home</a></li>
+                    <li><a href="getting-started.html">Docs</a></li>
+                    <li><a href="https://github.com/kanishkmishra/notionsafe">GitHub</a></li>
+                </ul>
+                <div style="display: flex; align-items: center; gap: var(--space-3);">
+                    <div id="search-btn" class="search-trigger">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        <span>Search docs...</span>
+                    </div>
+                    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Theme">
+                        <!-- Icon will be inserted by JS -->
+                    </button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div id="search-modal" class="search-modal">
+        <div class="search-modal-content">
+            <div class="search-modal-header">
+                <svg class="search-icon" style="position: static; transform: none; width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <input type="text" id="global-search" class="search-modal-input" placeholder="Search NotionSafe documentation...">
+            </div>
+            <div id="global-search-results" class="search-modal-results"></div>
+        </div>
+    </div>
+
+    <main class="container" style="padding: var(--space-8) 0;">
+        <div class="docs-container">
+            <aside class="docs-sidebar">
+                <span class="label-md" style="padding-left: var(--space-3);">Guide</span>
+                <ul>
+                    <li><a href="getting-started.html" class="active">Getting Started</a></li>
+                    <li><a href="installation.html">Installation</a></li>
+                    <li><a href="usage.html">Usage</a></li>
+                    <li><a href="configuration.html">Configuration</a></li>
+                    <li><a href="faq.html">FAQ</a></li>
+                </ul>
+            </aside>
+
+            <article class="docs-content">
+                <span class="label-md">Documentation</span>
+                <h1>Getting Started</h1>
+                <p>Welcome to NotionSafe! This guide will help you set up your first automatic Notion backup in less than 5 minutes.</p>
+
+                <h2>Prerequisites</h2>
+                <p>Before you begin, make sure you have:</p>
+                <ul>
+                    <li>A Notion account with at least one workspace.</li>
+                    <li>A Notion API Token (Internal Integration Token).</li>
+                </ul>
+
+                <div class="card" style="margin: var(--space-5) 0;">
+                    <h3 style="font-size: 1.25rem;">How to get a Notion API Token?</h3>
+                    <p style="font-size: 1rem;">1. Go to <a href="https://www.notion.so/my-integrations" target="_blank">Notion Integrations</a>.<br>
+                    2. Click <b>+ New integration</b>.<br>
+                    3. Give it a name (e.g., "NotionSafe Backup") and select the workspace.<br>
+                    4. Submit and copy the <b>Internal Integration Token</b>.</p>
+                </div>
+
+                <h2>Step 1: Install NotionSafe</h2>
+                <p>Download the latest version of NotionSafe for your operating system from the <a href="https://github.com/kanishkmishra/notionsafe/releases">GitHub Releases</a> page.</p>
+                <ul>
+                    <li><b>Windows:</b> Download <code>notionsafe.exe</code> and run it.</li>
+                    <li><b>Linux:</b> Download the <code>.tar.gz</code> or use the COPR/AUR package (see <a href="installation.html">Installation</a>).</li>
+                </ul>
+
+                <h2>Step 2: Run the Configuration Wizard</h2>
+                <p>When you first launch the app, the Configuration Wizard will guide you through the setup.</p>
+                <ol>
+                    <li><b>Notion Token:</b> Paste your API token. NotionSafe will verify it and store it securely in your system's keyring.</li>
+                    <li><b>Storage:</b> Choose where you want to store your backups (local folder or an external drive).</li>
+                    <li><b>Schedule:</b> Decide how often you want NotionSafe to run (e.g., every 6 hours, daily, etc.).</li>
+                </ol>
+
+                <h2>Step 3: Your First Backup</h2>
+                <p>Once configured, you can click "Start Backup" from the main dashboard to run your first manual backup. NotionSafe will create a timestamped folder containing your entire Notion workspace in Markdown and CSV formats.</p>
+
+                <div class="card" style="margin-top: var(--space-8);">
+                    <h3>Pro Tip: Git Integration</h3>
+                    <p>Enable Git integration in the settings to track changes over time. NotionSafe will automatically commit and push your backups to a private Git repository of your choice.</p>
+                </div>
+            </article>
+
+            <aside class="docs-nav">
+                <span class="label-md">On this page</span>
+                <ul id="on-this-page">
+                    <!-- Dynamically populated -->
+                </ul>
+            </aside>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div style="margin-bottom: var(--space-4);">
+                <img src="../assets/logo.png" alt="NotionSafe Logo" style="height: 32px; opacity: 0.6; filter: grayscale(1);">
+            </div>
+            <p>&copy; 2026 NotionSafe. Built by Kanishk Mishra.</p>
+        </div>
+    </footer>
+
+    <script src="../js/main.js"></script>
+</body>
+</html>

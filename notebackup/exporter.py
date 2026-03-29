@@ -1,112 +1,71 @@
-# Robust shim for notion2md exporting API changes.
+# exporter.py - Direct runner for notion2md
 from __future__ import annotations
-import importlib
-import pkgutil
-import subprocess
 import sys
-from typing import Callable, Any
+import io
+from notion2md.console.application import main as notion2md_main
+from cleo.io.outputs.stream_output import StreamOutput
+from .logger import log
 
-CANDIDATE_NAMES = ["export_cli", "export", "main", "run", "cli", "exporter"]
+def _dummy_has_color_support(self) -> bool:
+    """A dummy replacement that always reports no color support."""
+    return False
 
-def _iter_submodules(pkg_name: str):
-    try:
-        pkg = importlib.import_module(pkg_name)
-    except Exception:
-        return
-    yield pkg_name, pkg
-    for finder, name, ispkg in pkgutil.walk_packages(path=getattr(pkg, "__path__", None), prefix=pkg_name + "."):
-        try:
-            mod = importlib.import_module(name)
-            yield name, mod
-        except Exception:
-            continue
-
-def _find_export_callable() -> Callable[..., Any] | None:
-    # Search notion2md.exporter and its submodules for a callable
-    for mod_name, mod in _iter_submodules("notion2md.exporter"):
-        for cand in CANDIDATE_NAMES:
-            if hasattr(mod, cand):
-                obj = getattr(mod, cand)
-                if callable(obj):
-                    return obj
-    # Search top-level package for candidate names
-    try:
-        top = importlib.import_module("notion2md")
-        for cand in CANDIDATE_NAMES:
-            if hasattr(top, cand):
-                obj = getattr(top, cand)
-                if callable(obj):
-                    return obj
-        # sometimes package exposes a submodule object
-        if hasattr(top, "exporter"):
-            mod2 = getattr(top, "exporter")
-            for cand in CANDIDATE_NAMES:
-                if hasattr(mod2, cand):
-                    obj = getattr(mod2, cand)
-                    if callable(obj):
-                        return obj
-    except Exception:
-        pass
-    return None
-
-def _find_main_callable() -> Callable[..., Any] | None:
-    # Try notion2md.__main__.main
-    try:
-        main_mod = importlib.import_module("notion2md.__main__")
-        if hasattr(main_mod, "main") and callable(getattr(main_mod, "main")):
-            return getattr(main_mod, "main")
-    except Exception:
-        pass
-    return None
-
-# Primary export_cli: prefer in-process callable, else fallback to __main__, else subprocess runner.
-def _subprocess_runner(argv):
-    """Run `python -m notion2md` with argv list; return exit code or raise subprocess.CalledProcessError."""
-    from .logger import log
-    cmd = [sys.executable, "-m", "notion2md"] + list(argv)
-    completed = subprocess.run(cmd, check=False, capture_output=True, text=True)
-    if completed.returncode != 0:
-        log.error(f"notion2md failed with exit code {completed.returncode}")
-        log.error(f"notion2md stdout: {completed.stdout}")
-        log.error(f"notion2md stderr: {completed.stderr}")
-    return completed.returncode
-
-# Build the export_cli that other code expects to call.
-_export_callable = _find_export_callable()
-_main_callable = _find_main_callable()
-
-def _export_cli_passthrough(*args, **kwargs):
+def _direct_cli_runner(*args, **kwargs):
     """
-    Generic wrapper that tries in-process calls first, then __main__, then subprocess fallback.
-    Behavior:
-      - If in-process callable exists, call it with same signature.
-      - Else if __main__.main exists, call it with args (if it expects argv style, pass through).
-      - Else run python -m notion2md as subprocess, passing positional args as argv.
+    Patches sys.argv and stdout/stderr, monkey-patches cleo, then calls the 
+    notion2md main entrypoint directly. This is a robust solution for 
+    PyInstaller compatibility.
     """
-    if _export_callable is not None:
-        return _export_callable(*args, **kwargs)
-    if _main_callable is not None:
-        # try to call main. If args is empty, call without arguments.
-        try:
-            return _main_callable(*args, **kwargs)
-        except TypeError:
-            # perhaps main expects argv list; convert positional args to argv
-            argv = []
-            for a in args:
-                if isinstance(a, (list, tuple)):
-                    argv.extend(map(str, a))
-                else:
-                    argv.append(str(a))
-            return _main_callable(argv)
-    # final fallback: run module as subprocess. Convert args into argv list.
+    # Build the argument list that notion2md expects
     argv = []
     for a in args:
         if isinstance(a, (list, tuple)):
             argv.extend(map(str, a))
         else:
             argv.append(str(a))
-    argv.append("--download") # Add the --download flag here
-    return _subprocess_runner(argv)
+    argv.append("--download")
 
-# Export the symbol expected by notebackup code.
-export_cli = _export_cli_passthrough
+    # Patch sys attributes for the duration of the call
+    original_argv = sys.argv
+    original_stdout = sys.stdout
+    original_stderr = sys.stderr
+    original_color_support = StreamOutput._has_color_support
+
+    sys.argv = ['notion2md'] + argv
+    
+    temp_stdout = io.StringIO()
+    temp_stderr = io.StringIO()
+    sys.stdout = temp_stdout
+    sys.stderr = temp_stderr
+    
+    # Monkey-patch cleo to prevent it from calling fileno()
+    StreamOutput._has_color_support = _dummy_has_color_support
+    
+    log.info(f"Calling notion2md in-process with args: {sys.argv}")
+
+    try:
+        exit_code = notion2md_main()
+        
+        stdout_val = temp_stdout.getvalue()
+        stderr_val = temp_stderr.getvalue()
+        if stdout_val:
+            log.info(f"notion2md stdout: {stdout_val.strip()}")
+        if stderr_val:
+            log.error(f"notion2md stderr: {stderr_val.strip()}")
+
+        if exit_code != 0:
+            log.error(f"notion2md exited with non-zero code: {exit_code}")
+        
+        return exit_code
+    except Exception as e:
+        log.error(f"An unexpected error occurred while running notion2md in-process: {e}", exc_info=True)
+        return 1
+    finally:
+        # Always restore the original attributes
+        sys.argv = original_argv
+        sys.stdout = original_stdout
+        sys.stderr = original_stderr
+        StreamOutput._has_color_support = original_color_support
+
+# Export the new function as the symbol expected by the rest of the codebase.
+export_cli = _direct_cli_runner

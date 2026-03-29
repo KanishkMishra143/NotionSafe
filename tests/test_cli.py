@@ -41,12 +41,13 @@ def test_load_config(mock_yaml_load, mock_open_file, mock_path_exists):
 @patch('notebackup.fs_layout.update_latest_marker')
 @patch('notebackup.storage.rsync_to_external')
 @patch('notebackup.gitops.perform_git_backup')
-@patch('post_process.post_process_file')
+@patch('notebackup.cli.post_process_file')
 @patch('notion_client.Client')
 def test_run_backup_calls_exporter_with_correct_ids(mock_notion_client, mock_post_process, mock_gitops, mock_rsync, mock_update_marker, mock_get_title, mock_export_cli, mock_create_dir, mock_get_token):
     """
     Test that the run_backup function calls the exporter with the correct arguments.
     """
+    mock_export_cli.return_value = 0
     run_backup(MOCK_CONFIG)
 
     assert mock_export_cli.call_count == 3

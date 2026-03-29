@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Installation | NotionSafe Docs</title>
+    <link rel="icon" type="image/png" href="../assets/logo_round.png" class="favicon">
+    <script>
+      (function() {
+        const theme = localStorage.getItem('theme') || 'light';
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark-theme');
+        }
+      })();
+    </script>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <a href="../index.html" class="logo">
+                    <span>NotionSafe</span>
+                </a>
+                <ul class="nav-links">
+                    <li><a href="../index.html">Home</a></li>
+                    <li><a href="getting-started.html">Docs</a></li>
+                    <li><a href="https://github.com/kanishkmishra/notionsafe">GitHub</a></li>
+                </ul>
+                <div style="display: flex; align-items: center; gap: var(--space-3);">
+                    <div id="search-btn" class="search-trigger">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        <span>Search docs...</span>
+                    </div>
+                    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Theme">
+                        <!-- Icon will be inserted by JS -->
+                    </button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div id="search-modal" class="search-modal">
+        <div class="search-modal-content">
+            <div class="search-modal-header">
+                <svg class="search-icon" style="position: static; transform: none; width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <input type="text" id="global-search" class="search-modal-input" placeholder="Search NotionSafe documentation...">
+            </div>
+            <div id="global-search-results" class="search-modal-results"></div>
+        </div>
+    </div>
+
+    <main class="container" style="padding: var(--space-8) 0;">
+        <div class="docs-container">
+            <aside class="docs-sidebar">
+                <span class="label-md" style="padding-left: var(--space-3);">Guide</span>
+                <ul>
+                    <li><a href="getting-started.html">Getting Started</a></li>
+                    <li><a href="installation.html" class="active">Installation</a></li>
+                    <li><a href="usage.html">Usage</a></li>
+                    <li><a href="configuration.html">Configuration</a></li>
+                    <li><a href="faq.html">FAQ</a></li>
+                </ul>
+            </aside>
+
+            <article class="docs-content">
+                <span class="label-md">Documentation</span>
+                <h1>Installation</h1>
+                <p>NotionSafe is available as a standalone executable for Windows and various package formats for Linux.</p>
+
+                <h2>Windows</h2>
+                <p>For Windows users, we provide a portable executable. No installer required.</p>
+                <ol>
+                    <li>Download the latest <code>notionsafe-windows.exe</code> from <a href="https://github.com/kanishkmishra/notionsafe/releases">GitHub Releases</a>.</li>
+                    <li>Move the <code>.exe</code> to a folder of your choice.</li>
+                    <li>Double-click to run. If Windows SmartScreen appears, click "More Info" and then "Run Anyway."</li>
+                </ol>
+
+                <h2>Linux</h2>
+                <p>NotionSafe has a native GTK4 interface for Linux and can be installed via the following methods:</p>
+
+                <h3>Fedora / CentOS / RHEL (COPR)</h3>
+                <pre><code>sudo dnf copr enable kanishkmishra/notionsafe
+sudo dnf install notionsafe</code></pre>
+
+                <h3>Arch Linux (AUR)</h3>
+                <pre><code>yay -S notionsafe</code></pre>
+
+                <h3>Universal Binary (tar.gz)</h3>
+                <ol>
+                    <li>Download the <code>notionsafe-linux.tar.gz</code>.</li>
+                    <li>Extract the archive: <code>tar -xvf notionsafe-linux.tar.gz</code>.</li>
+                    <li>Run the <code>notionsafe</code> binary from the extracted folder.</li>
+                </ol>
+
+                <div class="card" style="margin-top: var(--space-8);">
+                    <h3>Linux Dependencies</h3>
+                    <p>On some minimal Linux distributions, you may need to install <code>libadwaita</code> and <code>gobject-introspection</code> manually if they aren't already present.</p>
+                </div>
+            </article>
+
+            <aside class="docs-nav">
+                <span class="label-md">On this page</span>
+                <ul id="on-this-page">
+                    <!-- Dynamically populated -->
+                </ul>
+            </aside>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div style="margin-bottom: var(--space-4);">
+                <img src="../assets/logo.png" alt="NotionSafe Logo" style="height: 32px; opacity: 0.6; filter: grayscale(1);">
+            </div>
+            <p>&copy; 2026 NotionSafe. Built by Kanishk Mishra.</p>
+        </div>
+    </footer>
+
+    <script src="../js/main.js"></script>
+</body>
+</html>

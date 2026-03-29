@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ | NotionSafe Docs</title>
+    <link rel="icon" type="image/png" href="../assets/logo_round.png" class="favicon">
+    <script>
+      (function() {
+        const theme = localStorage.getItem('theme') || 'light';
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark-theme');
+        }
+      })();
+    </script>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <a href="../index.html" class="logo">
+                    <span>NotionSafe</span>
+                </a>
+                <ul class="nav-links">
+                    <li><a href="../index.html">Home</a></li>
+                    <li><a href="getting-started.html">Docs</a></li>
+                    <li><a href="https://github.com/kanishkmishra/notionsafe">GitHub</a></li>
+                </ul>
+                <div style="display: flex; align-items: center; gap: var(--space-3);">
+                    <div id="search-btn" class="search-trigger">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        <span>Search docs...</span>
+                    </div>
+                    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Theme">
+                        <!-- Icon will be inserted by JS -->
+                    </button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div id="search-modal" class="search-modal">
+        <div class="search-modal-content">
+            <div class="search-modal-header">
+                <svg class="search-icon" style="position: static; transform: none; width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <input type="text" id="global-search" class="search-modal-input" placeholder="Search NotionSafe documentation...">
+            </div>
+            <div id="global-search-results" class="search-modal-results"></div>
+        </div>
+    </div>
+
+    <main class="container" style="padding: var(--space-8) 0;">
+        <div class="docs-container">
+            <aside class="docs-sidebar">
+                <span class="label-md" style="padding-left: var(--space-3);">Guide</span>
+                <ul>
+                    <li><a href="getting-started.html">Getting Started</a></li>
+                    <li><a href="installation.html">Installation</a></li>
+                    <li><a href="usage.html">Usage</a></li>
+                    <li><a href="configuration.html">Configuration</a></li>
+                    <li><a href="faq.html" class="active">FAQ</a></li>
+                </ul>
+            </aside>
+
+            <article class="docs-content">
+                <span class="label-md">Documentation</span>
+                <h1>Frequently Asked Questions</h1>
+                <p>Have a question? Check here first. If you don't find what you're looking for, feel free to open an issue on GitHub.</p>
+
+                <div style="display: flex; flex-direction: column; gap: var(--space-4);">
+                    <div class="card">
+                        <h3>Is NotionSafe free?</h3>
+                        <p>Yes! NotionSafe is completely free and open-source under the MIT license. You can use it for personal or business purposes.</p>
+                    </div>
+
+                    <div class="card">
+                        <h3>Does it store my password?</h3>
+                        <p>No. NotionSafe uses <b>Notion API Tokens</b> (Internal Integration Tokens), not your password. These tokens are stored securely in your system's native keyring, ensuring high-level security.</p>
+                    </div>
+
+                    <div class="card">
+                        <h3>Can I backup to an external drive?</h3>
+                        <p>Absolutely. During the Configuration Wizard, you can choose any local or external path for your backups.</p>
+                    </div>
+
+                    <div class="card">
+                        <h3>What file formats are used?</h3>
+                        <p>NotionSafe exports your pages as <b>Markdown (.md)</b> files and your databases as <b>CSV (.csv)</b> files. This ensures your data remains readable and portable, regardless of whether you use Notion in the future.</p>
+                    </div>
+
+                    <div class="card">
+                        <h3>Why do some pages have missing content?</h3>
+                        <p>Ensure that you have "shared" those specific pages with your NotionSafe integration. In Notion, go to the page, click the <b>...</b> menu, then <b>Connect to</b>, and select your integration.</p>
+                    </div>
+
+                    <div class="card">
+                        <h3>Does it work on macOS?</h3>
+                        <p>Currently, NotionSafe is officially supported and tested for <b>Windows</b> and <b>Linux</b>. A macOS version is planned for a future release.</p>
+                    </div>
+
+                    <div class="card">
+                        <h3>How do I uninstall?</h3>
+                        <p>On Windows, simply delete the <code>.exe</code> file. On Linux, use your package manager (e.g., <code>dnf remove notionsafe</code> or <code>yay -R notionsafe</code>). Don't forget to remove the <code>~/.notionsafe</code> configuration folder if you want to perform a complete cleanup.</p>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: var(--space-8); text-align: center;">
+                    <h3>Still have questions?</h3>
+                    <p>Open an issue on GitHub or reach out to the developer directly.</p>
+                    <a href="https://github.com/kanishkmishra/notionsafe/issues" class="btn btn-primary">Open GitHub Issue</a>
+                </div>
+            </article>
+
+            <aside class="docs-nav">
+                <span class="label-md">On this page</span>
+                <ul id="on-this-page">
+                    <!-- Dynamically populated -->
+                </ul>
+            </aside>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div style="margin-bottom: var(--space-4);">
+                <img src="../assets/logo.png" alt="NotionSafe Logo" style="height: 32px; opacity: 0.6; filter: grayscale(1);">
+            </div>
+            <p>&copy; 2026 NotionSafe. Built by Kanishk Mishra.</p>
+        </div>
+    </footer>
+
+    <script src="../js/main.js"></script>
+</body>
+</html>

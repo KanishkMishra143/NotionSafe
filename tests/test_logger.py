@@ -9,7 +9,7 @@ def test_setup_logger():
 
     assert isinstance(logger, logging.Logger)
     assert logger.level == logging.INFO
-    assert not logger.propagate
+    assert logger.propagate
     assert len(logger.handlers) == 1
     
     handler = logger.handlers[0]

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=NotionSafe
+Comment=Local backup solution for Notion workspaces
+Exec=notionsafe
+Icon=notionsafe
+Terminal=false
+Type=Application
+Categories=Utility;Office;

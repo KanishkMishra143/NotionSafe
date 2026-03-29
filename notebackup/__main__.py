@@ -2,12 +2,16 @@
 
 import sys
 import platform
+from multiprocessing import freeze_support
 
 def main():
     """
     Primary entry point for the NotionSafe application.
     Detects the operating system and launches the appropriate UI.
     """
+    # This guard is essential for PyInstaller to prevent recursive spawning of child processes.
+    freeze_support()
+    
     current_os = platform.system()
 
     if current_os == "Windows":

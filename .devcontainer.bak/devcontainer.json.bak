@@ -1,0 +1,21 @@
+{
+    "name": "notionsafe-site",
+    "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
+    "features": {
+        "ghcr.io/devcontainers/features/git:1": {}
+    },
+    "postCreateCommand": "cd site && npm install",
+    "forwardPorts": [
+        5173,
+        3000,
+        8080
+    ],
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "esbenp.prettier-vscode",
+                "dbaeumer.vscode-eslint"
+            ]
+        }
+    }
+}   

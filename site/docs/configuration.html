@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuration | NotionSafe Docs</title>
+    <link rel="icon" type="image/png" href="../assets/logo_round.png" class="favicon">
+    <script>
+      (function() {
+        const theme = localStorage.getItem('theme') || 'light';
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark-theme');
+        }
+      })();
+    </script>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <a href="../index.html" class="logo">
+                    <span>NotionSafe</span>
+                </a>
+                <ul class="nav-links">
+                    <li><a href="../index.html">Home</a></li>
+                    <li><a href="getting-started.html">Docs</a></li>
+                    <li><a href="https://github.com/kanishkmishra/notionsafe">GitHub</a></li>
+                </ul>
+                <div style="display: flex; align-items: center; gap: var(--space-3);">
+                    <div id="search-btn" class="search-trigger">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        <span>Search docs...</span>
+                    </div>
+                    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Theme">
+                        <!-- Icon will be inserted by JS -->
+                    </button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div id="search-modal" class="search-modal">
+        <div class="search-modal-content">
+            <div class="search-modal-header">
+                <svg class="search-icon" style="position: static; transform: none; width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <input type="text" id="global-search" class="search-modal-input" placeholder="Search NotionSafe documentation...">
+            </div>
+            <div id="global-search-results" class="search-modal-results"></div>
+        </div>
+    </div>
+
+    <main class="container" style="padding: var(--space-8) 0;">
+        <div class="docs-container">
+            <aside class="docs-sidebar">
+                <span class="label-md" style="padding-left: var(--space-3);">Guide</span>
+                <ul>
+                    <li><a href="getting-started.html">Getting Started</a></li>
+                    <li><a href="installation.html">Installation</a></li>
+                    <li><a href="usage.html">Usage</a></li>
+                    <li><a href="configuration.html" class="active">Configuration</a></li>
+                    <li><a href="faq.html">FAQ</a></li>
+                </ul>
+            </aside>
+
+            <article class="docs-content">
+                <span class="label-md">Documentation</span>
+                <h1>Configuration</h1>
+                <p>Fine-tune NotionSafe to fit your workflow. All settings can be changed after the initial wizard setup.</p>
+
+                <h2>Notion API Token</h2>
+                <p>NotionSafe uses a <b>Personal Integration Token</b>. This token grants the app read-only access to the pages you choose to share with it.</p>
+                <ul>
+                    <li>If you change your Notion token, click the <b>"Re-run Wizard"</b> button on the settings tab to update it.</li>
+                    <li><b>Security Note:</b> Your token is never stored in plain-text. It is stored in the <b>Windows Credential Manager</b> or the <b>Linux Keyring (libsecret/GNOME Keyring/KWallet)</b>.</li>
+                </ul>
+
+                <h2>Backup Storage Path</h2>
+                <p>You can change your backup path at any time. When you update the path, NotionSafe will automatically move your existing backups to the new location, or start fresh if the new path is an external drive.</p>
+                <div class="halo-effect">
+                    <img src="../assets/linux_config_wizard_storage_options.png" alt="Storage Settings" style="width: 100%; border-radius: 1rem; margin-bottom: var(--space-5);">
+                </div>
+
+                <h2>Git Integration (Optional)</h2>
+                <p>For power users, NotionSafe supports <b>GitOps</b>. This allows you to treat your Notion workspace like a code repository.</p>
+                <ol>
+                    <li>Click the <b>Settings</b> tab.</li>
+                    <li>Toggle "Enable Git Backup."</li>
+                    <li>Enter your remote repository URL (e.g., <code>https://github.com/username/notion-backups.git</code>).</li>
+                    <li>Enter your Personal Access Token (PAT).</li>
+                </ol>
+                <p>NotionSafe will now automatically commit your snapshots and push them to the remote repo. This provides a detailed history and a second, off-site backup.</p>
+
+                <h2>Backup Frequency</h2>
+                <p>Choose between Hourly, 6-Hour, 12-Hour, or Daily backups. The frequency can be adjusted in the <b>Settings</b> tab and will immediately update the underlying OS-native scheduled task.</p>
+                <div class="halo-effect">
+                    <img src="../assets/linux_config_wizard_backup_frequency.png" alt="Frequency Settings" style="width: 100%; border-radius: 1rem; margin-bottom: var(--space-5);">
+                </div>
+
+                <div class="card" style="margin-top: var(--space-8);">
+                    <h3>Advanced Settings</h3>
+                    <p>Looking for more granular control? You can edit the <code>config.yaml</code> file directly, located in your user profile directory (<code>~/.notionsafe/</code> on Linux or <code>%APPDATA%/NotionSafe/</code> on Windows).</p>
+                </div>
+            </article>
+
+            <aside class="docs-nav">
+                <span class="label-md">On this page</span>
+                <ul id="on-this-page">
+                    <!-- Dynamically populated -->
+                </ul>
+            </aside>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div style="margin-bottom: var(--space-4);">
+                <img src="../assets/logo.png" alt="NotionSafe Logo" style="height: 32px; opacity: 0.6; filter: grayscale(1);">
+            </div>
+            <p>&copy; 2026 NotionSafe. Built by Kanishk Mishra.</p>
+        </div>
+    </footer>
+
+    <script src="../js/main.js"></script>
+</body>
+</html>
