@@ -7,10 +7,15 @@ import threading
 import yaml
 import gi
 
-gi.require_version('Gtk', '4.0')
-gi.require_version('Adw', '1')
+try:
+    gi.require_version("Gtk", "4.0")
+    from gi.repository import Adw
+    gi.require_version('Adw', '1')
+except ValueError:
+    gi.require_version("Gtk", "3.0")
 
-from gi.repository import Gtk, Adw, GLib, Gio
+
+from gi.repository import Gtk, GLib, Gio
 from ..logger import log
 from ..core import BackupRunner
 from ..cli import InvalidNotionTokenError

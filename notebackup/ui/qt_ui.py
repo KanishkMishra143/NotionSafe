@@ -8,7 +8,7 @@ import tempfile
 import argparse
 from PySide6.QtCore import Signal, QObject, Qt, QThread, QTimer
 from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton, QTextEdit, QVBoxLayout, QWidget, QProgressBar, QLabel, QFrame, QHBoxLayout, QMessageBox, QWizard, QStyle, QTabWidget
-from PySide6.QtGui import QAction, QColor, QTextCursor, QIcon
+from PySide6.QtGui import QAction, QColor, QTextCursor, QIcon, QPalette
 
 from .. import cli
 from .qt_config_wizard import ConfigWizard
@@ -111,11 +111,21 @@ def is_admin():
     except:
         return False
 
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("NotionSafe")
-        self.setWindowIcon(QIcon('assets/logo.png'))
+        self.setWindowIcon(QIcon(resource_path('assets/logo.png')))
         self.setGeometry(100, 100, 800, 600)
 
         # --- Menu Bar ---
@@ -422,6 +432,25 @@ def main():
 
     # Standard GUI application startup
     app = QApplication(sys.argv)
+    app.setStyle("Fusion")
+    palette = QPalette()
+
+    palette.setColor(QPalette.Window, QColor(53, 53, 53))
+    palette.setColor(QPalette.WindowText, QColor(255, 255, 255))
+    palette.setColor(QPalette.Base, QColor(35, 35, 35))
+    palette.setColor(QPalette.AlternateBase, QColor(53, 53, 53))
+    palette.setColor(QPalette.ToolTipBase, QColor(255, 255, 255))
+    palette.setColor(QPalette.ToolTipText, QColor(255, 255, 255))
+    palette.setColor(QPalette.Text, QColor(255, 255, 255))
+    palette.setColor(QPalette.Button, QColor(53, 53, 53))
+    palette.setColor(QPalette.ButtonText, QColor(255, 255, 255))
+    palette.setColor(QPalette.Highlight, QColor(42, 130, 218))
+    palette.setColor(QPalette.HighlightedText, QColor(0, 0, 0))
+    palette.setColor(QPalette.Link, QColor(0, 102, 204))
+    palette.setColor(QPalette.LinkVisited, QColor(0, 80, 160))
+    
+    app.setPalette(palette)
+
 
     config_path = os.path.expanduser("~/.noteback/config.yaml")
     if not os.path.exists(config_path):

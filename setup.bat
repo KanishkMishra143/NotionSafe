@@ -34,6 +34,7 @@ echo Installing dependencies...
 call venv\Scripts\activate.bat
 pip install --upgrade pip >nul
 pip install -r requirements.txt
+pip install -e .
 if %errorlevel% neq 0 (
     echo ERROR: Failed to install Python dependencies.
     pause
@@ -41,6 +42,19 @@ if %errorlevel% neq 0 (
 )
 echo Dependencies installed successfully.
 deactivate
+
+:: --- 4. Checking if git is installed or not ---
+echo Checking for Git...
+git --version >nul 2>&1
+if %errorlevel% neq 0 (
+    echo.
+    echo ERROR: Git is not installed. Please install Git from https://git-scm.com/
+    echo Then rerun this script.
+    echo.
+    pause
+    goto :eof
+)
+echo Git found.
 
 echo.
 echo --- Setup Complete! ---

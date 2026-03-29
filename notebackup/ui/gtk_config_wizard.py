@@ -11,7 +11,13 @@ import notion_client
 from ..auth import SERVICE_ID
 from ..logger import log
 
-gi.require_version('Gtk', '4.0')
+try:
+    gi.require_version("Gtk", "4.0")
+    from gi.repository import Adw
+    gi.require_version('Adw', '1')
+except ValueError:
+    gi.require_version("Gtk", "3.0")
+    
 from gi.repository import Gtk, Gio, GObject, GLib
 
 class ListItem(GObject.Object):
