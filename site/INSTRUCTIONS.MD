@@ -102,3 +102,42 @@ Instead of a simple sidebar filter, implement a **Global Indexing Search**:
 ```
 
 *By following these instructions, any AI agent can replicate the specific high-fidelity look and performance-optimized behavior of the NotionSafe site.*
+
+---
+
+## 7. Automated Deployment (GitHub Actions)
+To maintain a seamless sync between the `site/` directory and the live landing page:
+*   **Workflow**: Create `.github/workflows/deploy-site.yml`.
+*   **Triggers**: Set to run on `push` to `master` with a filter on the `site/**` path.
+*   **Actions**:
+    1.  Use `actions/checkout` to pull the code.
+    2.  Use `actions/upload-pages-artifact` pointing to the `./site` directory.
+    3.  Use `actions/deploy-pages` to push to the `github-pages` environment.
+*   **Permissions**: Ensure the workflow has `pages: write` and `id-token: write` permissions.
+
+---
+
+## 8. Responsiveness Strategy: "The Fluid Vault"
+While the design is architectural, it must adapt gracefully to mobile (Android/iOS) and tablets.
+
+### Universal Container Padding
+*   **Mandate**: Never let text touch the edge of a mobile screen.
+*   **Execution**: In the `768px` media query, set `.container { padding: 0 var(--space-5); }`. This provides a consistent 2rem "breathing room" on small devices.
+
+### Mobile Navigation (The Hamburger)
+*   **HTML**: Add a `button#mobile-menu-toggle` with a menu icon (Lucide-style).
+*   **CSS**:
+    *   Hide the toggle by default (`display: none`).
+    *   Show on mobile (`display: flex`) and hide standard `.nav-links`.
+    *   Position `.nav-links.active` as a full-width absolute dropdown below the header with a solid background and shadow.
+*   **JS**: Add a simple toggle listener that switches between `menu` and `x` (close) icons and toggles the `.active` class on the nav links.
+
+### Solid vs. Gradient Primary Actions
+*   **Guidance**: For the primary "Get Started" call-to-action, use a **solid background color** (`var(--primary)`) rather than a gradient. This ensures maximum legibility and a cleaner, more "vault-like" technical appearance across all screen types.
+
+### Header Separation on Mobile
+*   **Execution**: Add a `1px solid` border to the bottom of the header (`border-bottom: 1px solid var(--outline-variant)`) and increase background opacity to `0.9` in dark mode. This prevents the header from "melting" into the background when scrolling through content-heavy documentation or hero sections.
+
+### Scaling Typography & Spacing
+*   **Scale Down**: Reduce the base spacing variable `--space-8` from `4rem` to `3rem` on mobile to keep vertical gaps proportional.
+*   **Hero Visuals**: Use `flex-direction: column` for hero images and process steps on mobile to ensure screenshots remain large and legible.
