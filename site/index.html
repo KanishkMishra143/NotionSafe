@@ -7,9 +7,11 @@
     <link rel="icon" type="image/png" href="assets/logo_round.png" class="favicon">
     <script>
       (function() {
-        const theme = localStorage.getItem('theme') || 'light';
+        const theme = localStorage.getItem('theme') || 'dark';
         if (theme === 'dark') {
           document.documentElement.classList.add('dark-theme');
+        } else {
+          document.documentElement.classList.remove('dark-theme');
         }
       })();
     </script>

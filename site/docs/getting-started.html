@@ -7,9 +7,11 @@
     <link rel="icon" type="image/png" href="../assets/logo_round.png" class="favicon">
     <script>
       (function() {
-        const theme = localStorage.getItem('theme') || 'light';
+        const theme = localStorage.getItem('theme') || 'dark';
         if (theme === 'dark') {
           document.documentElement.classList.add('dark-theme');
+        } else {
+          document.documentElement.classList.remove('dark-theme');
         }
       })();
     </script>
@@ -25,18 +27,21 @@
                 <a href="../index.html" class="logo">
                     <span>NotionSafe</span>
                 </a>
-                <ul class="nav-links">
+                <ul class="nav-links" id="nav-links">
                     <li><a href="../index.html">Home</a></li>
                     <li><a href="getting-started.html">Docs</a></li>
-                    <li><a href="https://github.com/kanishkmishra/notionsafe">GitHub</a></li>
                 </ul>
-                <div style="display: flex; align-items: center; gap: var(--space-3);">
+                <div class="flex-group">
                     <div id="search-btn" class="search-trigger">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         <span>Search docs...</span>
                     </div>
                     <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Theme">
                         <!-- Icon will be inserted by JS -->
+                    </button>
+                    <a href="https://github.com/KanishkMishra143/NotionSafe" class="btn btn-secondary hide-mobile">GitHub</a>
+                    <button id="mobile-menu-toggle" class="theme-toggle mobile-only" aria-label="Toggle Menu">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
                     </button>
                 </div>
             </nav>
@@ -53,10 +58,10 @@
         </div>
     </div>
 
-    <main class="container" style="padding: var(--space-8) 0;">
+    <main class="container">
         <div class="docs-container">
             <aside class="docs-sidebar">
-                <span class="label-md" style="padding-left: var(--space-3);">Guide</span>
+                <span class="label-md">Guide</span>
                 <ul>
                     <li><a href="getting-started.html" class="active">Getting Started</a></li>
                     <li><a href="installation.html">Installation</a></li>
@@ -87,7 +92,7 @@
                 </div>
 
                 <h2>Step 1: Install NotionSafe</h2>
-                <p>Download the latest version of NotionSafe for your operating system from the <a href="https://github.com/kanishkmishra/notionsafe/releases">GitHub Releases</a> page.</p>
+                <p>Download the latest version of NotionSafe for your operating system from the <a href="https://github.com/KanishkMishra143/NotionSafe/releases">GitHub Releases</a> page.</p>
                 <ul>
                     <li><b>Windows:</b> Download <code>notionsafe.exe</code> and run it.</li>
                     <li><b>Linux:</b> Download the <code>.tar.gz</code> or use the COPR/AUR package (see <a href="installation.html">Installation</a>).</li>
