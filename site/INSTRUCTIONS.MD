@@ -1,0 +1,104 @@
+# Instructions for Replicating "The Digital Vault" Design System
+
+This document provides the exhaustive technical and design blueprint for replicating the high-end, editorial landing page and multi-page wiki created for **NotionSafe**. 
+
+---
+
+## 1. Design Philosophy: "The Digital Vault"
+The goal is an interface that feels architectural, secure, and intentionally quiet. It rejects "SaaS dashboard" clichés in favor of tactile, custom surfaces.
+
+### The "No-Line" Rule
+*   **Mandate**: Never use `1px solid` borders for sectioning or sidebars.
+*   **Execution**: Use background luminance shifts. A 2-3% difference between `surface` and `surface-container` is sufficient for the eye to perceive boundaries without visual noise.
+
+### Surface Hierarchy (Tonal Depth)
+Define 5-6 levels of surfaces to create physical nesting:
+1.  **Base**: `surface` (The foundation).
+2.  **Secondary**: `container-low` (Alternating sections).
+3.  **Active/Hover**: `container-lowest` (Highest contrast, pure white/black).
+4.  **Defined**: `container-high` (Visible cards in light mode, sidebars).
+5.  **Accent**: `container-highest` (Inputs, search bars).
+
+### Elevation & Hover States
+*   **Static States**: Cards should have a subtle, soft shadow (`box-shadow: 0 4px 12px rgba(0,0,0,0.08)`).
+*   **Hover Behavior**: Do **not** lift or gray-out cards. Instead, make a **1px primary-colored border** appear. This signifies technical precision.
+
+---
+
+## 2. Visual Identity & Assets
+
+### Image "Halo" Effect
+Images should never sit flat on a background. Wrap them in a `.halo-effect` container:
+*   **CSS**: Use `::after` with a `radial-gradient` of the primary color, high `blur` (40px-60px), and low `opacity` (0.15-0.35).
+*   **Container**: Must have `overflow: visible` to ensure the glow isn't clipped.
+
+### Circular Branding
+*   Favicons and footer logos must be circular. 
+*   **Technical Tip**: While CSS `border-radius: 50%` works for on-page images, the browser tab icon (favicon) **must** be a circular-cropped file (e.g., `logo_round.png`).
+
+---
+
+## 3. The Technical Blueprint (Performance & Stability)
+
+### Robust Flash Prevention (Theme Logic)
+To prevent the "white flash" during page loads in Dark Mode:
+1.  **Head Script**: Place a blocking script immediately in the `<head>` before any content or CSS. 
+    ```javascript
+    (function() {
+      const theme = localStorage.getItem('theme') || 'light';
+      if (theme === 'dark') document.documentElement.classList.add('dark-theme');
+    })();
+    ```
+2.  **Root Background**: Define `html.dark-theme { background-color: #0e1011; }` in CSS so the browser paints the dark color before the body renders.
+3.  **Instant Toggle**: Toggle the class on `document.documentElement`, not `document.body`, to ensure header transparency and layout updates happen in perfect sync.
+
+### Header Transparency
+*   Use `backdrop-filter: blur(20px)` and an `rgba` background color on the sticky header.
+*   **Selector**: Define specific `rgba` values for `.dark-theme header` vs default to ensure the blur matches the surface color.
+
+---
+
+## 4. Multi-Page Wiki Architecture
+
+### 3-Column Layout
+*   **Structure**: `[240px Sidebar] | [1fr Content] | [240px Navigator]`.
+*   **Focus**: This centers the reading area while keeping tools accessible at the edges.
+
+### Dynamic "On This Page" Navigator
+*   **Logic**: Use JS to query `.docs-content` for `h2` and `h3` tags.
+*   **Precision**: Use `scroll-margin-top: 100px` on all headings to prevent the sticky header from cutting off text when jumping to anchors.
+*   **Active State**: Use `window.addEventListener('scroll')` to highlight the current section in the right navigator.
+
+### Global Multi-Page Search
+Instead of a simple sidebar filter, implement a **Global Indexing Search**:
+1.  **Indexing**: On search trigger, use `fetch()` to grab the HTML of all wiki pages.
+2.  **Parsing**: Use `DOMParser` to extract searchable content (`h2, h3, p, li`) into a JSON object.
+3.  **UI**: Display results in a **Modal** with blurred background. Provide snippets and links that jump to the exact anchor (`#heading-id`).
+
+---
+
+## 5. Typography Standards
+*   **Font**: Inter (Primary) + JetBrains Mono (Code).
+*   **Display**: Large headlines (`2.5rem`) with tightened letter-spacing (`-0.02em`).
+*   **Body**: Comfortable reading size (`1rem` / `16px`) with generous line-height (`1.6`).
+*   **Labels**: Uppercase, tracked out (`0.05em`) labels for secondary metadata.
+
+---
+
+## 6. CSS Reference (The "Digital Vault" Variables)
+```css
+:root {
+  --surface: #f9f9fb;
+  --surface-container-high: #e8e8eb; /* Critical for card visibility in light mode */
+  --primary: #0058a0;
+  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dark-theme {
+  --surface: #0e1011;
+  --on-surface: #e2e2e6;
+  --primary: #7eb6ff; /* Softer periwinkle for dark mode links */
+}
+```
+
+*By following these instructions, any AI agent can replicate the specific high-fidelity look and performance-optimized behavior of the NotionSafe site.*
