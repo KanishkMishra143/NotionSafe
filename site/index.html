@@ -32,17 +32,20 @@
                 <a href="#" class="logo">
                     <span>NotionSafe</span>
                 </a>
-                <ul class="nav-links">
+                <ul class="nav-links" id="nav-links">
                     <li><a href="#why">Why?</a></li>
                     <li><a href="#features">Features</a></li>
                     <li><a href="#how">How it works</a></li>
                     <li><a href="docs/getting-started.html">Docs</a></li>
                 </ul>
-                <div style="display: flex; align-items: center; gap: var(--space-3);">
+                <div class="flex-group">
                     <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Theme">
                         <!-- Icon set by JS -->
                     </button>
-                    <a href="https://github.com/KanishkMishra143/NotionSafe" class="btn btn-secondary">GitHub</a>
+                    <a href="https://github.com/KanishkMishra143/NotionSafe" class="btn btn-secondary hide-mobile">GitHub</a>
+                    <button id="mobile-menu-toggle" class="theme-toggle mobile-only" aria-label="Toggle Menu">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+                    </button>
                 </div>
             </nav>
         </div>
@@ -55,17 +58,17 @@
                     <span class="label-md">Own Your Data</span>
                     <h1>Your Notion, Offline & Secure.</h1>
                     <p>NotionSafe is a cross-platform desktop app that creates versioned local backups of your Notion workspaces. Simple, automatic, and secure.</p>
-                    <div style="display: flex; justify-content: center; gap: var(--space-3); margin-top: var(--space-4);">
+                    <div class="flex-group flex-center" style="margin-top: var(--space-4);">
                         <a href="docs/getting-started.html" class="btn btn-primary">Get Started</a>
                         <a href="https://github.com/KanishkMishra143/NotionSafe" class="btn btn-secondary">View Source</a>
                     </div>
                 </div>
-                <div class="hero-visual" style="margin-top: 4rem; display: flex; gap: var(--space-5); background: none; box-shadow: none; overflow: visible; align-items: flex-start; justify-content: center;">
-                    <div class="halo-effect" style="flex: 1; max-width: 550px;">
-                        <img src="assets/windows_gui.png" alt="NotionSafe Windows Dashboard" style="width: 100%; height: auto; border-radius: 0.5rem; box-shadow: 0 20px 60px var(--shadow-tint); display: block;">
+                <div class="hero-visual">
+                    <div class="halo-effect">
+                        <img src="assets/windows_gui.png" alt="NotionSafe Windows Dashboard" style="border-radius: 0.5rem;">
                     </div>
-                    <div class="halo-effect" style="flex: 1; max-width: 550px;">
-                        <img src="assets/linux_gui.png" alt="NotionSafe Linux Dashboard" style="width: 100%; height: auto; border-radius: 1.25rem; box-shadow: 0 20px 60px var(--shadow-tint); display: block;">
+                    <div class="halo-effect">
+                        <img src="assets/linux_gui.png" alt="NotionSafe Linux Dashboard" style="border-radius: 1.25rem;">
                     </div>
                 </div>
             </div>
@@ -152,12 +155,12 @@
                             <img src="assets/linux_config_wizard_notion_token_input.png" alt="Connect Notion">
                         </div>
                     </div>
-                    <div class="step" style="direction: rtl;">
-                        <div class="step-content" style="direction: ltr;">
+                    <div class="step">
+                        <div class="step-content">
                             <h3>2. Choose Your Content</h3>
                             <p>Select which pages or databases you want to backup, or just backup your entire workspace.</p>
                         </div>
-                        <div class="step-image halo-effect" style="direction: ltr;">
+                        <div class="step-image halo-effect">
                             <img src="assets/linux_config_wizard_notion_content_selection.png" alt="Select Content">
                         </div>
                     </div>
@@ -184,7 +187,7 @@
                         <span class="label-md">Human Touch</span>
                         <h3>Built by a developer who cares about your data.</h3>
                         <p>"I built NotionSafe because I needed a reliable way to own my notes. It's open-source, private, and built to last."</p>
-                        <div style="display: flex; gap: var(--space-3);">
+                        <div class="flex-group flex-center-mobile" style="margin-top: var(--space-3);">
                             <a href="https://github.com/KanishkMishra143" class="btn btn-secondary">GitHub</a>
                             <a href="https://www.linkedin.com/in/kanishk-kumar-83603b194/" class="btn btn-secondary">LinkedIn</a>
                         </div>
