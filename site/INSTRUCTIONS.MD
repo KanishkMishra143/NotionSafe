@@ -141,3 +141,27 @@ While the design is architectural, it must adapt gracefully to mobile (Android/i
 ### Scaling Typography & Spacing
 *   **Scale Down**: Reduce the base spacing variable `--space-8` from `4rem` to `3rem` on mobile to keep vertical gaps proportional.
 *   **Hero Visuals**: Use `flex-direction: column` for hero images and process steps on mobile to ensure screenshots remain large and legible.
+
+---
+
+## 9. Evolution: "The Tonal Vault" (Professional & Colorful)
+When a more vibrant, Material You-inspired design is requested, follow these supplemental rules to balance professionalism with color.
+
+### Tonal Surface Palette
+Move away from neutral grays to **Azure/Midnight Slate tints**.
+*   **Light Mode**: Use a faint sapphire tint for the base (`#f8fafc`) and secondary surfaces (`#f1f5f9`).
+*   **Dark Mode**: Use a deep Midnight Navy (`#0b0f1a`) instead of pure obsidian. This creates a "premium night" feel.
+
+### Material 3 Geometry & Spacing
+*   **Radii**: Increase card and button border-radius to `1.25rem` or `1.5rem` for a softer, modern appearance.
+*   **Aggressive Compactness**: Reduce global spacing variables (e.g., `--space-8` at `2rem`) to eliminate dead space. 
+*   **Card Padding**: Use a tighter `1rem` to `1.25rem` padding for guide cards and small callouts.
+
+### Accent Layering (The "Pop" Factor)
+*   **Multi-color Halos**: Instead of a single primary glow, use a `radial-gradient` mix of Sapphire (`--primary`), Teal (`--secondary`), and Violet (`--tertiary`) at low opacity.
+*   **Cycling Borders**: For grid sections, give cards a `4px solid` top-border that cycles through the three accent colors.
+*   **Vibrant Gradients**: Apply 135deg linear gradients to primary actions (Sapphire to Indigo) and the logo span (Sapphire to Violet).
+
+### High-End Glassmorphism
+*   **Header**: Increase `backdrop-filter: blur` to `24px` and use a tinted `rgba` background (80-85% opacity).
+*   **Sidebars**: Use a translucent, tinted background with a subtle border and blur to make the docs feel like a physical layer above the content.
