@@ -16,3 +16,6 @@ CONTEXT.md
 GEMINI.md
 # Env
 .env
+*.txt
+*.bak
+log.md
